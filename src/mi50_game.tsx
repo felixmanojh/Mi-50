@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Users, Trophy, Brain, ArrowRight, ArrowLeft, RotateCcw, Zap } from 'lucide-react';
 import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
 import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
+import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
 
 
 const Mascot = ({ message }) => {
