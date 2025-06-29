@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Users, Trophy, Brain, ArrowRight, ArrowLeft, RotateCcw, Zap } from 'lucide-react';
+import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
+import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
 
 
 const Mascot = ({ message }) => {
@@ -14,6 +16,7 @@ const Mascot = ({ message }) => {
 };
 
 const Mi50Game = () => {
+  const [isMuted, setIsMuted] = useState(false); // Add isMuted state
   const [gameState, setGameState] = useState({
     players: [],
     currentPlayerIndex: 0,
@@ -509,7 +512,7 @@ const Mi50Game = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-4 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-      <AudioPlayer src={audioUrls.background} loop={true} />
+      <AudioPlayer src={audioUrls.background} loop={true} isMuted={isMuted} />
       <div className="text-center mb-6">
         
         <button onClick={() => setIsMuted(!isMuted)} className="absolute top-4 right-4 text-2xl">
