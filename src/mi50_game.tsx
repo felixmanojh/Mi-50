@@ -18,6 +18,7 @@ const Mascot = ({ message }) => {
 
 const Mi50Game = () => {
   const [isMuted, setIsMuted] = useState(false); // Add isMuted state
+  const [specialAnimation, setSpecialAnimation] = useState(null); // Add specialAnimation state
   const [gameState, setGameState] = useState({
     players: [],
     currentPlayerIndex: 0,
