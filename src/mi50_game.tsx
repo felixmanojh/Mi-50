@@ -6,6 +6,10 @@ import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresen
 import PlayerAvatar from './PlayerAvatar'; // Import PlayerAvatar
 import { useSound } from './SoundEffects'; // Import sound effects hook
 import SpecialSquareIndicator from './SpecialSquareIndicator'; // Import special square indicators
+import { useAudioPreloader, AudioLoadingScreen } from './AudioPreloader'; // Import audio preloader
+import Tutorial from './Tutorial'; // Import tutorial component
+import { VisualMathOperation } from './VisualMathAids'; // Import visual math aids
+import { MathQuestionGenerator, MathQuestion } from './MathQuestionGenerator'; // Import question generator
 
 
 const Mascot = ({ message }) => {
@@ -23,7 +27,28 @@ const Mi50Game = () => {
   const [isMuted, setIsMuted] = useState(false); // Add isMuted state
   const [specialAnimation, setSpecialAnimation] = useState(null); // Add specialAnimation state
   const [isRolling, setIsRolling] = useState(false); // Add isRolling state
-  const playSound = useSound(isMuted); // Initialize sound hook
+  const { playPreloadedSound, isLoading } = useAudioPreloader(); // Use preloaded audio
+  
+  // Create enhanced sound function that uses preloaded audio
+  const playSound = (soundKey: string, volume: number = 0.5) => {
+    if (!isMuted) {
+      // Map audioUrls to keys for preloaded audio
+      const soundMap: { [key: string]: string } = {
+        [audioUrls.diceRoll]: 'diceRoll',
+        [audioUrls.playerMove]: 'playerMove',
+        [audioUrls.specialSquare]: 'specialSquare',
+        [audioUrls.victory]: 'victory',
+        [audioUrls.buttonClick]: 'buttonClick',
+        [audioUrls.correctAnswer]: 'correctAnswer',
+        [audioUrls.wrongAnswer]: 'wrongAnswer'
+      };
+      
+      const preloadedKey = soundMap[soundKey];
+      if (preloadedKey) {
+        playPreloadedSound(preloadedKey, volume);
+      }
+    }
+  };
   const [gameState, setGameState] = useState({
     players: [],
     currentPlayerIndex: 0,
@@ -39,29 +64,9 @@ const Mi50Game = () => {
     selectedCharacters: [] // track which characters are taken
   });
 
-  // Math questions pool for trivia
-  const mathQuestions = [
-    { question: "What is 5 + 3?", answer: 8 },
-    { question: "What is 10 + 6?", answer: 16 },
-    { question: "What is 17 - 4?", answer: 13 },
-    { question: "What is 12 - 5?", answer: 7 },
-    { question: "What is 7 + 8?", answer: 15 },
-    { question: "What is 15 - 6?", answer: 9 },
-    { question: "What is 9 + 4?", answer: 13 },
-    { question: "What is 14 - 7?", answer: 7 },
-    { question: "What is 6 + 9?", answer: 15 },
-    { question: "What is 18 - 9?", answer: 9 },
-    { question: "What is 8 + 7?", answer: 15 },
-    { question: "What is 13 - 8?", answer: 5 },
-    { question: "What is 11 + 4?", answer: 15 },
-    { question: "What is 16 - 7?", answer: 9 },
-    { question: "What is 5 + 8?", answer: 13 },
-    { question: "What is 12 - 3?", answer: 9 },
-    { question: "What is 9 + 6?", answer: 15 },
-    { question: "What is 15 - 8?", answer: 7 },
-    { question: "What is 7 + 5?", answer: 12 },
-    { question: "What is 14 - 6?", answer: 8 }
-  ];
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [mathGenerator] = useState(() => new MathQuestionGenerator()); // Initialize question generator
+  const [playerDifficulty, setPlayerDifficulty] = useState<{ [playerId: number]: 'easy' | 'medium' | 'hard' }>({});
 
   // Special squares configuration
   const specialSquares = {
@@ -208,7 +213,16 @@ const Mi50Game = () => {
         notificationMessage = `↩️ Oops! ${playerName} goes all the way back to start! 🏁`;
         break;
       case 'trivia':
-        const randomQuestion = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
+        // Get player's current difficulty level or default to easy
+        const difficulty = playerDifficulty[playerId] || 'easy';
+        
+        // Generate themed question for more engagement
+        const themes = ['animals', 'toys', 'food', 'nature'] as const;
+        const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+        const randomQuestion = Math.random() < 0.7 
+          ? mathGenerator.generateThemedQuestion(randomTheme, difficulty)
+          : mathGenerator.generateQuestion(difficulty);
+          
         setGameState(prev => ({
           ...prev,
           gamePhase: 'trivia',
@@ -445,17 +459,42 @@ const Mi50Game = () => {
   };
 
   const handleTriviaAnswer = (answer) => {
-    const isCorrect = parseInt(answer) === gameState.triviaQuestion.answer;
-    const playerName = gameState.players[gameState.triviaPlayer].name;
+    const isCorrect = parseInt(answer) === gameState.triviaQuestion!.answer;
+    const playerName = gameState.players[gameState.triviaPlayer!].name;
+    const playerId = gameState.triviaPlayer!;
+    
+    // Update difficulty based on performance
+    const currentDifficulty = playerDifficulty[playerId] || 'easy';
+    let newDifficulty = currentDifficulty;
     
     if (isCorrect) {
-      playSound(audioUrls.correctAnswer); // Play correct answer sound
-      showNotification(`🎉 FANTASTIC! ${playerName} got it right! Great job! 🎆`, 'success');
+      playSound(audioUrls.correctAnswer);
+      showNotification(`🎉 FANTASTIC! ${playerName} got it right! Great job! 🏆`, 'success');
+      
+      // Increase difficulty after correct answers (randomly)
+      if (Math.random() < 0.3 && currentDifficulty === 'easy') {
+        newDifficulty = 'medium';
+      } else if (Math.random() < 0.2 && currentDifficulty === 'medium') {
+        newDifficulty = 'hard';
+      }
     } else {
-      playSound(audioUrls.wrongAnswer); // Play wrong answer sound
-      gameState.players[gameState.triviaPlayer].skipNextTurn = true;
-      showNotification(`😅 Nice try! The answer was ${gameState.triviaQuestion.answer}. ${playerName} waits one turn!`, 'warning');
+      playSound(audioUrls.wrongAnswer);
+      gameState.players[gameState.triviaPlayer!].skipNextTurn = true;
+      showNotification(`😅 Nice try! The answer was ${gameState.triviaQuestion!.answer}. ${playerName} waits one turn!`, 'warning');
+      
+      // Decrease difficulty after wrong answer
+      if (currentDifficulty === 'hard') {
+        newDifficulty = 'medium';
+      } else if (currentDifficulty === 'medium') {
+        newDifficulty = 'easy';
+      }
     }
+    
+    // Update player difficulty
+    setPlayerDifficulty(prev => ({
+      ...prev,
+      [playerId]: newDifficulty
+    }));
     
     setGameState(prev => ({
       ...prev,
@@ -464,10 +503,15 @@ const Mi50Game = () => {
       triviaPlayer: null
     }));
     
-          setTimeout(nextTurn, 2500);
+    setTimeout(nextTurn, 2500);
   };
 
   
+
+  // Show loading screen while audio is loading
+  if (isLoading) {
+    return <AudioLoadingScreen />;
+  }
 
   if (gameState.gamePhase === 'setup') {
     return (
@@ -480,6 +524,22 @@ const Mi50Game = () => {
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           <Users className="w-16 h-16 text-blue-500 mx-auto mb-6" />
           <h2 className="text-2xl font-bold mb-6">How many players?</h2>
+          
+          {/* Tutorial Button */}
+          <div className="mb-6">
+            <motion.button
+              onClick={() => {
+                playSound(audioUrls.buttonClick);
+                setShowTutorial(true);
+              }}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-3 rounded-xl text-lg font-bold transition-all shadow-lg border-2 border-white"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              🎓 How to Play (Tutorial)
+            </motion.button>
+          </div>
+
           <div className="flex gap-4 justify-center">
             {[2, 3, 4].map(num => (
               <motion.button
@@ -568,35 +628,73 @@ const Mi50Game = () => {
   }
 
   if (gameState.gamePhase === 'trivia') {
+    const triviaQuestion = gameState.triviaQuestion!;
+    const showVisualAids = triviaQuestion.num1 <= 10 && triviaQuestion.num2 <= 10; // Only show for smaller numbers
+    
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-md">
+      <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-4xl w-full">
           <Brain className="w-16 h-16 text-purple-500 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold mb-4">Math Time!</h2>
-          <p className="text-lg mb-6">{gameState.triviaQuestion.question}</p>
-          <input
-            type="number"
-            placeholder="Your answer"
-            className="border-2 border-gray-300 rounded-lg px-4 py-2 text-xl text-center mb-4 w-full"
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleTriviaAnswer(e.target.value);
-              }
-            }}
-            autoFocus
-          />
+          <h2 className="text-3xl font-bold mb-4">Math Time! 🧠</h2>
+          
+          {/* Question Text */}
+          <div className="mb-6">
+            <p className="text-xl mb-4 text-gray-700">{triviaQuestion.question}</p>
+            
+            {/* Show difficulty indicator */}
+            <div className="text-sm text-gray-500 mb-4">
+              Difficulty: {playerDifficulty[gameState.triviaPlayer!] || 'easy'} 
+              {(playerDifficulty[gameState.triviaPlayer!] || 'easy') === 'easy' && ' 🟢'}
+              {(playerDifficulty[gameState.triviaPlayer!] || 'easy') === 'medium' && ' 🟡'}
+              {(playerDifficulty[gameState.triviaPlayer!] || 'easy') === 'hard' && ' 🔴'}
+            </div>
+          </div>
+
+          {/* Visual Math Aids - only for simple questions */}
+          {showVisualAids && (
+            <div className="mb-8">
+              <VisualMathOperation
+                num1={triviaQuestion.num1}
+                num2={triviaQuestion.num2}
+                operation={triviaQuestion.operation}
+                showResult={false}
+              />
+            </div>
+          )}
+
+          {/* Answer Input */}
+          <div className="mb-6">
+            <input
+              type="number"
+              placeholder="Your answer"
+              className="border-4 border-purple-300 rounded-xl px-6 py-4 text-2xl text-center mb-4 w-48 focus:border-purple-500 focus:outline-none"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleTriviaAnswer((e.target as HTMLInputElement).value);
+                }
+              }}
+              autoFocus
+            />
+          </div>
+
+          {/* Submit Button */}
           <motion.button
             onClick={(e) => {
               playSound(audioUrls.buttonClick);
-              const input = e.target.parentElement.querySelector('input');
+              const input = (e.target as HTMLElement).parentElement!.parentElement!.querySelector('input') as HTMLInputElement;
               handleTriviaAnswer(input.value);
             }}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-bold text-xl shadow-lg border-2 border-white"
+            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-12 py-6 rounded-xl font-bold text-2xl shadow-lg border-4 border-white"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             🧠 Submit Answer
           </motion.button>
+
+          {/* Encouragement */}
+          <p className="text-gray-500 mt-4 text-lg">
+            Take your time and think it through! 💭
+          </p>
         </div>
       </div>
     );
@@ -774,6 +872,16 @@ const Mi50Game = () => {
           </div>
         )}
       </div>
+      
+      {/* Tutorial Component */}
+      <Tutorial
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        onComplete={() => {
+          playSound(audioUrls.correctAnswer);
+          setShowTutorial(false);
+        }}
+      />
     </div>
   );
 };
