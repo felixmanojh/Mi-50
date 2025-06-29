@@ -3,6 +3,7 @@ import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Users, Trophy, Brain, ArrowRi
 import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
 import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
 import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
+import PlayerAvatar from './PlayerAvatar'; // Import PlayerAvatar
 
 
 const Mascot = ({ message }) => {
