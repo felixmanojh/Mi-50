@@ -21,8 +21,8 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ player, position }) => {
   const verticalSpacing = 100 / numRows; // Percentage of height per row
   const horizontalSpacing = 100 / squaresPerRow; // Percentage of width per column
 
-  // Position for Square 0 (Start) - typically off the main grid or a dedicated start point
-  boardPositions[0] = { top: '95%', left: '5%' }; // Example: bottom-left corner
+  // Position for Square 0 (Start) - positioned at the start square
+  boardPositions[0] = { top: '95%', left: '50%' }; // Bottom center where START square is
 
   for (let i = 1; i <= 50; i++) {
     const row = Math.ceil(i / squaresPerRow); // Current row (1-indexed)

@@ -770,6 +770,74 @@ const Mi50Game = () => {
         className="relative bg-cover bg-center rounded-lg shadow-lg p-4 mb-6"
         style={{ backgroundImage: `url(${boardBgUrl})`, height: '600px' }}
       >
+        {/* Board Grid - Show numbered squares */}
+        <div className="absolute inset-4 grid grid-rows-5 gap-1">
+          {/* Row 1: 1-10 (left to right) */}
+          <div className="grid grid-cols-10 gap-1">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+              <div 
+                key={num} 
+                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+          
+          {/* Row 2: 20-11 (right to left) */}
+          <div className="grid grid-cols-10 gap-1">
+            {[20, 19, 18, 17, 16, 15, 14, 13, 12, 11].map(num => (
+              <div 
+                key={num} 
+                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+          
+          {/* Row 3: 21-30 (left to right) */}
+          <div className="grid grid-cols-10 gap-1">
+            {[21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(num => (
+              <div 
+                key={num} 
+                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+          
+          {/* Row 4: 40-31 (right to left) */}
+          <div className="grid grid-cols-10 gap-1">
+            {[40, 39, 38, 37, 36, 35, 34, 33, 32, 31].map(num => (
+              <div 
+                key={num} 
+                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+          
+          {/* Row 5: 41-50 (left to right) */}
+          <div className="grid grid-cols-10 gap-1">
+            {[41, 42, 43, 44, 45, 46, 47, 48, 49, 50].map(num => (
+              <div 
+                key={num} 
+                className={`border-2 border-gray-800 ${num === 50 ? 'bg-yellow-400 bg-opacity-90 text-white font-extrabold' : specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : 'bg-white bg-opacity-80'} rounded flex items-center justify-center text-lg font-bold`}
+              >
+                {num === 50 ? '🏆' : num}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Start square - positioned below the main grid */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 border-4 border-green-600 bg-green-200 bg-opacity-90 rounded-lg px-4 py-2 text-xl font-bold text-center">
+          🏁 START
+        </div>
+        
         <AnimatePresence>
           {specialAnimation && (
             <motion.div
