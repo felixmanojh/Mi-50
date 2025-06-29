@@ -81,6 +81,11 @@ To get the Mi-50 game running on your local machine:
     ```
     This will create a `dist/` folder with the optimized production build.
 
+5.  **Run tests:**
+    ```bash
+    npm test
+    ```
+
 ## Project Structure
 
 -   `src/`: Contains the main application source code.
