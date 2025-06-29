@@ -1,10 +1,13 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { monsterSpriteUrls } from './constants';
 
 interface PlayerAvatarProps {
   player: {
     id: number;
     name: string;
     color: string;
+    character?: number;
   };
   position: number;
 }
@@ -47,16 +50,38 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ player, position }) => {
   const style = boardPositions[position] || { top: '50%', left: '50%' }; // Fallback
 
   return (
-    <div
-      className={`absolute w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${player.color}`}
+    <motion.div
+      className="absolute"
       style={{
         ...style,
         transform: 'translate(-50%, -50%)',
         zIndex: 10 + player.id, // Stack players if on same square
       }}
+      initial={{ scale: 0 }}
+      animate={{ 
+        scale: 1,
+        y: [0, -8, 0], // Bounce effect
+      }}
+      transition={{ 
+        scale: { duration: 0.3 },
+        y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" }
+      }}
+      whileHover={{ scale: 1.2 }}
+      layout
+      layoutId={`player-${player.id}`}
     >
-      {player.name[0]}
-    </div>
+      {player.character !== undefined ? (
+        <img
+          src={monsterSpriteUrls[player.character]}
+          alt={`${player.name}'s character`}
+          className="w-16 h-16 rounded-full shadow-lg border-4 border-white"
+        />
+      ) : (
+        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-white ${player.color}`}>
+          {player.name[0]}
+        </div>
+      )}
+    </motion.div>
   );
 };
 

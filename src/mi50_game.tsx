@@ -4,6 +4,8 @@ import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
 import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
 import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
 import PlayerAvatar from './PlayerAvatar'; // Import PlayerAvatar
+import { useSound } from './SoundEffects'; // Import sound effects hook
+import SpecialSquareIndicator from './SpecialSquareIndicator'; // Import special square indicators
 
 
 const Mascot = ({ message }) => {
@@ -21,17 +23,20 @@ const Mi50Game = () => {
   const [isMuted, setIsMuted] = useState(false); // Add isMuted state
   const [specialAnimation, setSpecialAnimation] = useState(null); // Add specialAnimation state
   const [isRolling, setIsRolling] = useState(false); // Add isRolling state
+  const playSound = useSound(isMuted); // Initialize sound hook
   const [gameState, setGameState] = useState({
     players: [],
     currentPlayerIndex: 0,
     playerPositions: {},
-    gamePhase: 'setup', // 'setup', 'playing', 'trivia', 'ended'
+    gamePhase: 'setup', // 'setup', 'characterSelection', 'playing', 'trivia', 'ended'
     lastRoll: 0,
     waitingForNextPlayer: null, // for steal/mirror moves
     triviaQuestion: null,
     triviaPlayer: null,
     winner: null,
-    notification: null // for showing rule feedback
+    notification: null, // for showing rule feedback
+    numPlayers: 0, // for character selection
+    selectedCharacters: [] // track which characters are taken
   });
 
   // Math questions pool for trivia
@@ -90,29 +95,63 @@ const Mi50Game = () => {
   const playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
 
   const setupGame = (numPlayers) => {
-    const players = [];
-    const positions = {};
-    
-    for (let i = 0; i < numPlayers; i++) {
-      players.push({
-        id: i,
-        name: playerNames[i],
-        color: playerColors[i],
-        skipNextTurn: false
-      });
-      positions[i] = 0;
-    }
-
     setGameState({
       ...gameState,
-      players,
-      playerPositions: positions,
-      gamePhase: 'playing',
+      numPlayers,
+      gamePhase: 'characterSelection',
+      players: [],
+      selectedCharacters: [],
       notification: { 
-        message: `🎮 ${playerNames[0]}'s turn! Roll the dice to start the game!`, 
+        message: `🎮 Time to choose your characters! Player 1, pick your monster! 👾`, 
         type: 'info' 
       }
     });
+  };
+
+  const handleCharacterSelect = (characterIndex) => {
+    playSound(audioUrls.buttonClick);
+    const currentPlayerIndex = gameState.players.length;
+    const newPlayer = {
+      id: currentPlayerIndex,
+      name: playerNames[currentPlayerIndex],
+      color: playerColors[currentPlayerIndex],
+      character: characterIndex,
+      skipNextTurn: false
+    };
+
+    const updatedPlayers = [...gameState.players, newPlayer];
+    const updatedSelectedCharacters = [...gameState.selectedCharacters, characterIndex];
+
+    if (updatedPlayers.length === gameState.numPlayers) {
+      // All players selected, start game
+      const positions = {};
+      for (let i = 0; i < gameState.numPlayers; i++) {
+        positions[i] = 0;
+      }
+
+      setGameState({
+        ...gameState,
+        players: updatedPlayers,
+        selectedCharacters: updatedSelectedCharacters,
+        playerPositions: positions,
+        gamePhase: 'playing',
+        notification: { 
+          message: `🎮 ${updatedPlayers[0].name} goes first! Click the big dice to play! 🎲`, 
+          type: 'info' 
+        }
+      });
+    } else {
+      // Next player selects
+      setGameState({
+        ...gameState,
+        players: updatedPlayers,
+        selectedCharacters: updatedSelectedCharacters,
+        notification: { 
+          message: `🎮 ${playerNames[updatedPlayers.length]}, choose your monster! 👾`, 
+          type: 'info' 
+        }
+      });
+    }
   };
 
   const rollDice = () => {
@@ -144,6 +183,9 @@ const Mi50Game = () => {
     const special = specialSquares[position];
     if (!special) return;
 
+    // Play special square sound
+    playSound(audioUrls.specialSquare);
+
     const currentPos = gameState.playerPositions[playerId];
     const playerName = gameState.players[playerId].name;
     let newPos = currentPos;
@@ -154,16 +196,16 @@ const Mi50Game = () => {
     switch (special.type) {
       case 'roll_again':
         triggerRollAgain = true;
-        notificationMessage = `🎲 ${playerName} gets to roll again!`;
+        notificationMessage = `🎲 Yay! ${playerName} gets another turn! Roll again! 🎉`;
         break;
       case 'skip_turn':
       case 'lose_turn':
         gameState.players[playerId].skipNextTurn = true;
-        notificationMessage = `😔 ${playerName} will skip their next turn!`;
+        notificationMessage = `😔 Oh no! ${playerName} has to wait for their next turn!`;
         break;
       case 'go_to_start':
         newPos = 0;
-        notificationMessage = `↩️ ${playerName} goes back to the start!`;
+        notificationMessage = `↩️ Oops! ${playerName} goes all the way back to start! 🏁`;
         break;
       case 'trivia':
         const randomQuestion = mathQuestions[Math.floor(Math.random() * mathQuestions.length)];
@@ -172,50 +214,50 @@ const Mi50Game = () => {
           gamePhase: 'trivia',
           triviaQuestion: randomQuestion,
           triviaPlayer: playerId,
-          notification: { message: `🧠 ${playerName} must answer a math question!`, type: 'trivia' }
+          notification: { message: `🧠 Math time! ${playerName}, can you solve this? 🤔`, type: 'trivia' }
         }));
         return;
       case 'move_front_4':
         newPos = movePlayer(playerId, currentPos + 4);
-        notificationMessage = `🚀 ${playerName} moves forward 4 spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `🚀 Zoom! ${playerName} jumps forward 4 spaces! 🎯`;
         break;
       case 'move_back_4':
         newPos = movePlayer(playerId, currentPos - 4);
-        notificationMessage = `⬅️ ${playerName} moves back 4 spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `⬅️ Uh oh! ${playerName} slides back 4 spaces! 🎯`;
         break;
       case 'move_front_5':
         newPos = movePlayer(playerId, currentPos + 5);
-        notificationMessage = `🚀 ${playerName} moves forward 5 spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `🚀 Super jump! ${playerName} leaps forward 5 spaces! 🌟`;
         break;
       case 'move_back_5':
         newPos = movePlayer(playerId, currentPos - 5);
-        notificationMessage = `⬅️ ${playerName} moves back 5 spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `⬅️ Whoops! ${playerName} slides back 5 spaces! 😮`;
         break;
       case 'move_double':
         const doubleMove = roll * 2;
         newPos = movePlayer(playerId, currentPos + doubleMove - roll);
-        notificationMessage = `⚡ ${playerName} moves double! ${roll} × 2 = ${doubleMove} spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `⚡ WOW! ${playerName} moves DOUBLE! That's ${doubleMove} spaces! 🎆`;
         break;
       case 'move_triple':
         const tripleMove = roll * 3;
         newPos = movePlayer(playerId, currentPos + tripleMove - roll);
-        notificationMessage = `⚡⚡ ${playerName} moves triple! ${roll} × 3 = ${tripleMove} spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `⚡⚡ AMAZING! ${playerName} moves TRIPLE! That's ${tripleMove} spaces! 🎆🎆`;
         break;
       case 'move_backward':
         newPos = movePlayer(playerId, currentPos - roll);
-        notificationMessage = `🔄 ${playerName} moves backward ${roll} spaces! (${currentPos} → ${newPos})`;
+        notificationMessage = `🔄 Backwards we go! ${playerName} moves back ${roll} spaces! 🙈`;
         break;
       case 'go_to_13':
         newPos = 13;
-        notificationMessage = `📍 ${playerName} jumps to square 13!`;
+        notificationMessage = `📍 Magic portal! ${playerName} teleports to square 13! ✨`;
         break;
       case 'go_to_27':
         newPos = 27;
-        notificationMessage = `📍 ${playerName} jumps to square 27!`;
+        notificationMessage = `📍 Magic portal! ${playerName} teleports to square 27! ✨`;
         break;
       case 'roll_4_to_move':
         // This is handled in the dice roll function
-        notificationMessage = `🎯 ${playerName} must roll exactly 4 to move from this square!`;
+        notificationMessage = `🎯 Special challenge! ${playerName} needs to roll a 4 to move! 🎲`;
         break;
       case 'steal_move':
         setGameState(prev => ({
@@ -253,7 +295,39 @@ const Mi50Game = () => {
   };
 
   const handleDiceRoll = () => {
-    const roll = rollDice();
+    if (isRolling) return; // Prevent multiple clicks during rolling
+    
+    setIsRolling(true);
+    playSound(audioUrls.diceRoll); // Play dice roll sound
+    
+    // Animate dice for 1 second before showing result
+    let animationCounter = 0;
+    const animationInterval = setInterval(() => {
+      const tempRoll = rollDice();
+      setGameState(prev => ({
+        ...prev,
+        lastRoll: tempRoll
+      }));
+      
+      animationCounter++;
+      if (animationCounter >= 10) { // Stop after 1 second (10 * 100ms)
+        clearInterval(animationInterval);
+        const finalRoll = rollDice();
+        setGameState(prev => ({
+          ...prev,
+          lastRoll: finalRoll
+        }));
+        
+        // Process the actual dice roll after animation
+        setTimeout(() => {
+          processRoll(finalRoll);
+          setIsRolling(false);
+        }, 200);
+      }
+    }, 100);
+  };
+
+  const processRoll = (roll) => {
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     
     // Handle waiting moves (steal/mirror)
@@ -304,7 +378,7 @@ const Mi50Game = () => {
     // Check if player is on square 32 (roll 4 to move)
     if (currentPos === 32 && roll !== 4) {
       setGameState(prev => ({ ...prev, lastRoll: roll }));
-      showNotification(`🎯 ${currentPlayer.name} rolled ${roll} but needs exactly 4 to move from square 32!`, 'warning');
+      showNotification(`🎯 ${currentPlayer.name} rolled ${roll} but needs a 4! Try again next turn! 🎲`, 'warning');
       setTimeout(nextTurn, 2000);
       return;
     }
@@ -314,13 +388,16 @@ const Mi50Game = () => {
     // Check if move is legal
     if (newPos > 50) {
       setGameState(prev => ({ ...prev, lastRoll: roll }));
-      showNotification(`❌ ${currentPlayer.name} rolled ${roll} but can't move past square 50! Stay at ${currentPos}.`, 'warning');
+      showNotification(`🚫 Oops! ${currentPlayer.name} rolled ${roll} but that's too far! Stay at ${currentPos}! 🎯`, 'warning');
       setTimeout(nextTurn, 2000);
       return;
     }
 
     // Show basic move notification
-    showNotification(`🎲 ${currentPlayer.name} rolled ${roll} and moves to square ${newPos}!`, 'info');
+    showNotification(`🎲 ${currentPlayer.name} rolled a ${roll}! Moving to square ${newPos}! 🎯`, 'info');
+    
+    // Play movement sound
+    playSound(audioUrls.playerMove);
 
     setGameState(prev => ({
       ...prev,
@@ -330,6 +407,7 @@ const Mi50Game = () => {
 
     // Check for win
     if (newPos === 50) {
+      playSound(audioUrls.victory); // Play victory sound
       setGameState(prev => ({
         ...prev,
         gamePhase: 'ended',
@@ -342,7 +420,7 @@ const Mi50Game = () => {
     setTimeout(() => {
       // Check if it's a safe square first
       if ([41, 43, 44, 46, 48, 49].includes(newPos)) {
-        showNotification(`🛡️ ${currentPlayer.name} landed on a safe square! No special effects.`, 'success');
+        showNotification(`🛡️ Safe spot! ${currentPlayer.name} is protected here! 🏆`, 'success');
       }
       
       handleSpecialSquare(currentPlayer.id, newPos, roll);
@@ -371,10 +449,12 @@ const Mi50Game = () => {
     const playerName = gameState.players[gameState.triviaPlayer].name;
     
     if (isCorrect) {
-      showNotification(`🎉 Correct! ${playerName} answered right and continues playing!`, 'success');
+      playSound(audioUrls.correctAnswer); // Play correct answer sound
+      showNotification(`🎉 FANTASTIC! ${playerName} got it right! Great job! 🎆`, 'success');
     } else {
+      playSound(audioUrls.wrongAnswer); // Play wrong answer sound
       gameState.players[gameState.triviaPlayer].skipNextTurn = true;
-      showNotification(`❌ Wrong answer! ${playerName} will skip their next turn. The answer was ${gameState.triviaQuestion.answer}.`, 'warning');
+      showNotification(`😅 Nice try! The answer was ${gameState.triviaQuestion.answer}. ${playerName} waits one turn!`, 'warning');
     }
     
     setGameState(prev => ({
@@ -402,13 +482,18 @@ const Mi50Game = () => {
           <h2 className="text-2xl font-bold mb-6">How many players?</h2>
           <div className="flex gap-4 justify-center">
             {[2, 3, 4].map(num => (
-              <button
+              <motion.button
                 key={num}
-                onClick={() => setupGame(num)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg text-xl font-bold transition-colors"
+                onClick={() => {
+                  playSound(audioUrls.buttonClick);
+                  setupGame(num);
+                }}
+                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-12 py-6 rounded-xl text-2xl font-bold transition-all shadow-lg border-4 border-white"
+                whileHover={{ scale: 1.1, y: -5 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {num} Players
-              </button>
+                🎮 {num} Players
+              </motion.button>
             ))}
           </div>
         </div>
@@ -418,28 +503,64 @@ const Mi50Game = () => {
 
   
   if (gameState.gamePhase === 'characterSelection') {
-    const availableCharacters = monsterSpriteUrls.filter((_, index) => !gameState.players.some(p => p.character === index));
+    const availableCharacters = monsterSpriteUrls.filter((_, index) => !gameState.selectedCharacters.includes(index));
 
     return (
       <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-purple-600 mb-2">Choose Your Character</h1>
-          <p className="text-gray-600">Player {gameState.players.length + 1}, pick your monster!</p>
+          <h1 className="text-5xl font-bold text-purple-600 mb-2">Choose Your Monster! 👾</h1>
+          <p className="text-2xl text-gray-600">{playerNames[gameState.players.length]}, pick your character!</p>
         </div>
         
+        {/* Notification Banner */}
+        {gameState.notification && (
+          <div className="relative mb-6 p-6 rounded-xl text-center font-bold text-xl border-4 shadow-lg bg-white">
+            <div className="relative z-10">
+              📺 <span>{gameState.notification.message}</span>
+            </div>
+          </div>
+        )}
+        
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="flex gap-4 justify-center">
-            {availableCharacters.map((url, index) => (
-              <motion.img
-                key={index}
-                src={url}
-                alt={`Monster ${index}`}
-                className="w-32 h-32 cursor-pointer rounded-full border-4 border-transparent hover:border-blue-500"
-                onClick={() => handleCharacterSelect(monsterSpriteUrls.indexOf(url))}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              />
-            ))}
+          <div className="flex gap-6 justify-center flex-wrap">
+            {monsterSpriteUrls.map((url, index) => {
+              const isSelected = gameState.selectedCharacters.includes(index);
+              const isAvailable = !isSelected;
+              
+              return (
+                <motion.div
+                  key={index}
+                  className={`relative p-4 rounded-xl border-4 ${
+                    isSelected 
+                      ? 'border-gray-400 bg-gray-100 opacity-50' 
+                      : 'border-transparent hover:border-purple-500 bg-gradient-to-br from-purple-100 to-pink-100'
+                  }`}
+                >
+                  <motion.img
+                    src={url}
+                    alt={`Monster ${index + 1}`}
+                    className={`w-32 h-32 cursor-pointer rounded-full ${
+                      isSelected ? 'grayscale' : ''
+                    }`}
+                    onClick={() => isAvailable && handleCharacterSelect(index)}
+                    whileHover={isAvailable ? { scale: 1.1, y: -10 } : {}}
+                    whileTap={isAvailable ? { scale: 0.9 } : {}}
+                  />
+                  {isSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl">✅</span>
+                    </div>
+                  )}
+                  <p className="mt-2 font-bold text-lg">Monster {index + 1}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+          
+          <div className="mt-8">
+            <p className="text-lg text-gray-600">
+              Selected: {gameState.players.length} / {gameState.numPlayers} players
+            </p>
           </div>
         </div>
       </div>
@@ -464,15 +585,18 @@ const Mi50Game = () => {
             }}
             autoFocus
           />
-          <button
+          <motion.button
             onClick={(e) => {
+              playSound(audioUrls.buttonClick);
               const input = e.target.parentElement.querySelector('input');
               handleTriviaAnswer(input.value);
             }}
-            className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-bold"
+            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-4 rounded-xl font-bold text-xl shadow-lg border-2 border-white"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Submit Answer
-          </button>
+            🧠 Submit Answer
+          </motion.button>
         </div>
       </div>
     );
@@ -490,23 +614,28 @@ const Mi50Game = () => {
               {winner.name}
             </span> Wins!
           </p>
-          <button
-            onClick={() => setGameState({
-              players: [],
-              currentPlayerIndex: 0,
-              playerPositions: {},
-              gamePhase: 'setup',
-              lastRoll: 0,
-              waitingForNextPlayer: null,
-              triviaQuestion: null,
-              triviaPlayer: null,
-              winner: null,
-              notification: null
-            })}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg text-xl font-bold"
+          <motion.button
+            onClick={() => {
+              playSound(audioUrls.buttonClick);
+              setGameState({
+                players: [],
+                currentPlayerIndex: 0,
+                playerPositions: {},
+                gamePhase: 'setup',
+                lastRoll: 0,
+                waitingForNextPlayer: null,
+                triviaQuestion: null,
+                triviaPlayer: null,
+                winner: null,
+                notification: null
+              });
+            }}
+            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-12 py-6 rounded-xl text-2xl font-bold shadow-lg border-4 border-white"
+            whileHover={{ scale: 1.1, y: -5 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Play Again
-          </button>
+            🎮 Play Again
+          </motion.button>
         </div>
       </div>
     );
@@ -559,6 +688,17 @@ const Mi50Game = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        {/* Special Square Indicators */}
+        {Object.entries(specialSquares).map(([position, square]) => (
+          <SpecialSquareIndicator
+            key={position}
+            position={parseInt(position)}
+            type={square.type}
+            icon={square.icon}
+          />
+        ))}
+        
+        {/* Player Avatars */}
         {gameState.players.map(player => (
           <PlayerAvatar
             key={player.id}
@@ -583,14 +723,21 @@ const Mi50Game = () => {
             </div>
           </div>
           
-          <button
+          <motion.button
             onClick={handleDiceRoll}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-xl flex items-center gap-2 transition-colors"
+            className={`bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-bold text-xl flex items-center gap-2 transition-all shadow-lg ${isRolling ? 'animate-pulse' : ''}`}
             disabled={gameState.gamePhase !== 'playing' || isRolling}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {gameState.lastRoll > 0 ? getDiceIcon(gameState.lastRoll) : <Dice1 className="w-8 h-8" />}
-            Roll Dice
-          </button>
+            <motion.div
+              animate={isRolling ? { rotateX: 360, rotateY: 360 } : {}}
+              transition={{ duration: 0.1, repeat: isRolling ? Infinity : 0 }}
+            >
+              {gameState.lastRoll > 0 ? getDiceIcon(gameState.lastRoll) : <Dice1 className="w-8 h-8" />}
+            </motion.div>
+            {isRolling ? 'Rolling...' : 'Roll Dice'}
+          </motion.button>
         </div>
 
         {/* Player Status */}
