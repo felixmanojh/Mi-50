@@ -1,1 +1,0 @@
-@tailwind base;@tailwind components;@tailwind utilities;html,body{margin:0;padding:0;overflow:hidden;height:100%;width:100%;position:fixed}#root{height:100%;width:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}body{overscroll-behavior-y:none}.fixed{-webkit-transform:translateZ(0)}
