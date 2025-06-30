@@ -3,12 +3,13 @@ import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Users, Trophy, Brain, ArrowRi
 import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
 import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
 import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
-import PlayerAvatar from './PlayerAvatar'; // Import PlayerAvatar
+
 import { useSound } from './SoundEffects'; // Import sound effects hook
 import { useAudioPreloader, AudioLoadingScreen } from './AudioPreloader'; // Import audio preloader
 import Tutorial from './Tutorial'; // Import tutorial component
 import { VisualMathOperation } from './VisualMathAids'; // Import visual math aids
 import { MathQuestionGenerator, MathQuestion } from './MathQuestionGenerator'; // Import question generator
+import GameBoard from './GameBoard'; // Import the new GameBoard component
 
 
 const Mascot = ({ message }) => {
@@ -1034,111 +1035,11 @@ const Mi50Game = () => {
         )}
 
       {/* Game Board */}
-      <div className="relative bg-white rounded-lg shadow-lg p-6 mb-6 border-4 border-gray-300">
-        
-        {/* Board Table - Reliable 5x10 grid layout */}
-        <div className="w-full max-w-4xl mx-auto">
-          <table className="game-board w-full border-collapse">
-            <tbody>
-              {/* Row 1: 1-10 (left to right) */}
-              <tr>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                  <td 
-                    key={num} 
-                    className={`game-square border-2 border-gray-800 text-center font-bold ${
-                      specialSquares[num] 
-                        ? 'bg-yellow-200 text-orange-800' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}
-                  >
-                    {num}
-                  </td>
-                ))}
-              </tr>
-              
-              {/* Row 2: 20-11 (right to left) */}
-              <tr>
-                {[20, 19, 18, 17, 16, 15, 14, 13, 12, 11].map(num => (
-                  <td 
-                    key={num} 
-                    className={`game-square border-2 border-gray-800 text-center font-bold ${
-                      specialSquares[num] 
-                        ? 'bg-yellow-200 text-orange-800' 
-                        : 'bg-green-100 text-green-800'
-                    }`}
-                  >
-                    {num}
-                  </td>
-                ))}
-              </tr>
-              
-              {/* Row 3: 21-30 (left to right) */}
-              <tr>
-                {[21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(num => (
-                  <td 
-                    key={num} 
-                    className={`game-square border-2 border-gray-800 text-center font-bold ${
-                      specialSquares[num] 
-                        ? 'bg-yellow-200 text-orange-800' 
-                        : 'bg-pink-100 text-pink-800'
-                    }`}
-                  >
-                    {num}
-                  </td>
-                ))}
-              </tr>
-              
-              {/* Row 4: 40-31 (right to left) */}
-              <tr>
-                {[40, 39, 38, 37, 36, 35, 34, 33, 32, 31].map(num => (
-                  <td 
-                    key={num} 
-                    className={`game-square border-2 border-gray-800 text-center font-bold ${
-                      specialSquares[num] 
-                        ? 'bg-yellow-200 text-orange-800' 
-                        : 'bg-purple-100 text-purple-800'
-                    }`}
-                  >
-                    {num}
-                  </td>
-                ))}
-              </tr>
-              
-              {/* Row 5: 41-50 (left to right) */}
-              <tr>
-                {[41, 42, 43, 44, 45, 46, 47, 48, 49, 50].map(num => (
-                  <td 
-                    key={num} 
-                    className={`game-square border-2 border-gray-800 text-center font-bold ${
-                      num === 50 
-                        ? 'bg-yellow-400 text-white' 
-                        : specialSquares[num] 
-                          ? 'bg-yellow-200 text-orange-800' 
-                          : 'bg-cyan-100 text-cyan-800'
-                    }`}
-                  >
-                    {num === 50 ? '🏆' : num}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Start square - positioned below the main grid */}
-        <div className="mt-4 mx-auto w-fit border-4 border-green-600 bg-green-200 rounded-lg px-6 py-3 text-xl font-bold text-center">
-          🏁 START 🏁
-        </div>
-        
-        {/* Player Avatars */}
-        {gameState.players.map(player => (
-          <PlayerAvatar
-            key={player.id}
-            player={player}
-            position={gameState.playerPositions[player.id]}
-          />
-        ))}
-      </div>
+      <GameBoard 
+        players={gameState.players}
+        playerPositions={gameState.playerPositions}
+        specialSquares={specialSquares}
+      />
 
         {/* Game Controls */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border-8 border-gradient-to-r from-purple-400 to-pink-400 relative">
