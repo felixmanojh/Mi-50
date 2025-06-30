@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Users, Trophy, Brain, ArrowRight, ArrowLeft, RotateCcw, Zap } from 'lucide-react';
+import Confetti from 'react-confetti'; // Import confetti for celebrations
 import AudioPlayer from './AudioPlayer'; // Import the new AudioPlayer component
 import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Import constants
 import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
@@ -27,6 +28,8 @@ const Mi50Game = () => {
   const [isMuted, setIsMuted] = useState(false); // Add isMuted state
   const [specialAnimation, setSpecialAnimation] = useState(null); // Add specialAnimation state
   const [isRolling, setIsRolling] = useState(false); // Add isRolling state
+  const [showConfetti, setShowConfetti] = useState(false); // Add confetti state for celebrations
+  const [animatingSquare, setAnimatingSquare] = useState(null); // Track which square is animating
   const { playPreloadedSound, isLoading } = useAudioPreloader(); // Use preloaded audio
   
   // Create enhanced sound function that uses preloaded audio
@@ -61,7 +64,8 @@ const Mi50Game = () => {
     winner: null,
     notification: null, // for showing rule feedback
     numPlayers: 0, // for character selection
-    selectedCharacters: [] // track which characters are taken
+    selectedCharacters: [], // track which characters are taken
+    playerPowerUps: {} // track power-ups for each player: { playerId: { stars: 0, speedBoost: false, shield: false } }
   });
 
   const [showTutorial, setShowTutorial] = useState(false);
@@ -74,22 +78,29 @@ const Mi50Game = () => {
     3: { type: 'skip_turn', text: 'Skip Turn', icon: <ArrowRight className="w-4 h-4" /> },
     4: { type: 'go_to_start', text: 'Go to Start', icon: <RotateCcw className="w-4 h-4" /> },
     5: { type: 'trivia', text: 'Trivia', icon: <Brain className="w-4 h-4" /> },
+    6: { type: 'power_up_star', text: '⭐ Star!', icon: '⭐' },
     7: { type: 'lose_turn', text: 'Lose Turn', icon: <ArrowRight className="w-4 h-4" /> },
     8: { type: 'move_front_4', text: 'Move +4', icon: <ArrowRight className="w-4 h-4" /> },
     9: { type: 'roll_again', text: 'Lucky!', icon: <Zap className="w-4 h-4" /> },
     10: { type: 'move_back_4', text: 'Move -4', icon: <ArrowLeft className="w-4 h-4" /> },
+    12: { type: 'power_up_speed', text: '💨 Speed!', icon: '💨' },
     14: { type: 'roll_again', text: 'Free Turn', icon: <Dice1 className="w-4 h-4" /> },
     16: { type: 'move_front_4', text: 'Move +4', icon: <ArrowRight className="w-4 h-4" /> },
+    18: { type: 'power_up_shield', text: '🛡️ Shield!', icon: '🛡️' },
     19: { type: 'steal_move', text: 'Steal Move', icon: <Zap className="w-4 h-4" /> },
     21: { type: 'move_double', text: 'Move x2', icon: <Zap className="w-4 h-4" /> },
     22: { type: 'move_triple', text: 'Move x3', icon: <Zap className="w-4 h-4" /> },
     23: { type: 'move_backward', text: 'Move Back', icon: <ArrowLeft className="w-4 h-4" /> },
     25: { type: 'trivia', text: 'Trivia', icon: <Brain className="w-4 h-4" /> },
+    26: { type: 'power_up_star', text: '⭐ Star!', icon: '⭐' },
     28: { type: 'mirror_move', text: 'Mirror Move', icon: <Zap className="w-4 h-4" /> },
+    30: { type: 'power_up_speed', text: '💨 Speed!', icon: '💨' },
     32: { type: 'roll_4_to_move', text: 'Roll 4 to Move', icon: <Dice4 className="w-4 h-4" /> },
     34: { type: 'move_back_5', text: 'Move -5', icon: <ArrowLeft className="w-4 h-4" /> },
     35: { type: 'move_front_5', text: 'Move +5', icon: <ArrowRight className="w-4 h-4" /> },
+    37: { type: 'power_up_shield', text: '🛡️ Shield!', icon: '🛡️' },
     38: { type: 'roll_again', text: 'Roll Again', icon: <Dice1 className="w-4 h-4" /> },
+    39: { type: 'power_up_star', text: '⭐ Star!', icon: '⭐' },
     40: { type: 'go_to_13', text: 'Go to 13', icon: <RotateCcw className="w-4 h-4" /> },
     42: { type: 'lose_turn', text: 'Lose Turn', icon: <ArrowRight className="w-4 h-4" /> },
     45: { type: 'trivia', text: 'Trivia', icon: <Brain className="w-4 h-4" /> },
@@ -130,8 +141,10 @@ const Mi50Game = () => {
     if (updatedPlayers.length === gameState.numPlayers) {
       // All players selected, start game
       const positions = {};
+      const powerUps = {};
       for (let i = 0; i < gameState.numPlayers; i++) {
         positions[i] = 0;
+        powerUps[i] = { stars: 0, speedBoost: false, shield: false };
       }
 
       setGameState({
@@ -139,6 +152,7 @@ const Mi50Game = () => {
         players: updatedPlayers,
         selectedCharacters: updatedSelectedCharacters,
         playerPositions: positions,
+        playerPowerUps: powerUps,
         gamePhase: 'playing',
         notification: { 
           message: `🎮 ${updatedPlayers[0].name} goes first! Click the big dice to play! 🎲`, 
@@ -184,19 +198,57 @@ const Mi50Game = () => {
     }));
   };
 
+  const triggerConfetti = () => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000); // Hide confetti after 3 seconds
+  };
+
+  const triggerSquareAnimation = (squareNumber) => {
+    setAnimatingSquare(squareNumber);
+    setTimeout(() => setAnimatingSquare(null), 2000); // Stop animation after 2 seconds
+  };
+
   const handleSpecialSquare = (playerId, position, roll) => {
     const special = specialSquares[position];
     if (!special) return;
 
     // Play special square sound
     playSound(audioUrls.specialSquare);
+    
+    // Trigger big visual animation for special square
+    triggerSquareAnimation(position);
 
     const currentPos = gameState.playerPositions[playerId];
     const playerName = gameState.players[playerId].name;
+    const playerPowerUps = gameState.playerPowerUps[playerId] || { stars: 0, speedBoost: false, shield: false };
     let newPos = currentPos;
     let nextPlayerSkips = false;
     let triggerRollAgain = false;
     let notificationMessage = '';
+    let shieldUsed = false;
+
+    // Check if this is a negative effect and player has shield
+    const negativeEffects = ['skip_turn', 'lose_turn', 'go_to_start', 'move_back_4', 'move_back_5', 'move_backward'];
+    if (negativeEffects.includes(special.type) && playerPowerUps.shield) {
+      shieldUsed = true;
+      notificationMessage = `🛡️ SHIELD ACTIVATED! ${playerName} is protected from ${special.text}! ✨`;
+      
+      // Use up the shield
+      setGameState(prev => ({
+        ...prev,
+        playerPowerUps: {
+          ...prev.playerPowerUps,
+          [playerId]: {
+            ...prev.playerPowerUps[playerId],
+            shield: false
+          }
+        }
+      }));
+      
+      showNotification(notificationMessage, 'success');
+      setTimeout(nextTurn, 2000);
+      return;
+    }
 
     switch (special.type) {
       case 'roll_again':
@@ -273,6 +325,50 @@ const Mi50Game = () => {
         // This is handled in the dice roll function
         notificationMessage = `🎯 Special challenge! ${playerName} needs to roll a 4 to move! 🎲`;
         break;
+      case 'power_up_star':
+        setGameState(prev => ({
+          ...prev,
+          playerPowerUps: {
+            ...prev.playerPowerUps,
+            [playerId]: {
+              ...prev.playerPowerUps[playerId],
+              stars: prev.playerPowerUps[playerId].stars + 1
+            }
+          }
+        }));
+        const currentStars = (gameState.playerPowerUps[playerId]?.stars || 0) + 1;
+        if (currentStars >= 3) {
+          notificationMessage = `⭐ WOW! ${playerName} collected 3 stars! Extra roll unlocked! 🎉`;
+        } else {
+          notificationMessage = `⭐ ${playerName} found a star! ${currentStars}/3 stars collected! ✨`;
+        }
+        break;
+      case 'power_up_speed':
+        setGameState(prev => ({
+          ...prev,
+          playerPowerUps: {
+            ...prev.playerPowerUps,
+            [playerId]: {
+              ...prev.playerPowerUps[playerId],
+              speedBoost: true
+            }
+          }
+        }));
+        notificationMessage = `💨 SPEED BOOST! ${playerName} will move +2 on their next roll! 🚀`;
+        break;
+      case 'power_up_shield':
+        setGameState(prev => ({
+          ...prev,
+          playerPowerUps: {
+            ...prev.playerPowerUps,
+            [playerId]: {
+              ...prev.playerPowerUps[playerId],
+              shield: true
+            }
+          }
+        }));
+        notificationMessage = `🛡️ SHIELD UP! ${playerName} is protected from the next bad effect! ✨`;
+        break;
       case 'steal_move':
         setGameState(prev => ({
           ...prev,
@@ -300,6 +396,8 @@ const Mi50Game = () => {
 
     // Check for win
     if (newPos === 50) {
+      playSound(audioUrls.victory); // Play victory sound
+      triggerConfetti(); // Big celebration for victory!
       setGameState(prev => ({
         ...prev,
         gamePhase: 'ended',
@@ -367,6 +465,8 @@ const Mi50Game = () => {
       }));
       
       if (newPos === 50) {
+        playSound(audioUrls.victory); // Play victory sound
+        triggerConfetti(); // Big celebration for victory!
         setGameState(prev => ({
           ...prev,
           gamePhase: 'ended',
@@ -397,31 +497,55 @@ const Mi50Game = () => {
       return;
     }
     
-    const newPos = movePlayer(currentPlayer.id, currentPos + roll);
+    // Apply speed boost if player has it
+    const playerPowerUps = gameState.playerPowerUps[currentPlayer.id] || { stars: 0, speedBoost: false, shield: false };
+    let actualMovement = roll;
+    let speedBoostUsed = false;
+    
+    if (playerPowerUps.speedBoost) {
+      actualMovement = roll + 2;
+      speedBoostUsed = true;
+    }
+    
+    const newPos = movePlayer(currentPlayer.id, currentPos + actualMovement);
     
     // Check if move is legal
     if (newPos > 50) {
       setGameState(prev => ({ ...prev, lastRoll: roll }));
-      showNotification(`🚫 Oops! ${currentPlayer.name} rolled ${roll} but that's too far! Stay at ${currentPos}! 🎯`, 'warning');
+      const moveText = speedBoostUsed ? `${roll}+2 (speed boost)` : `${roll}`;
+      showNotification(`🚫 Oops! ${currentPlayer.name} rolled ${moveText} but that's too far! Stay at ${currentPos}! 🎯`, 'warning');
       setTimeout(nextTurn, 2000);
       return;
     }
 
-    // Show basic move notification
-    showNotification(`🎲 ${currentPlayer.name} rolled a ${roll}! Moving to square ${newPos}! 🎯`, 'info');
+    // Show basic move notification with power-up info
+    const moveText = speedBoostUsed ? `${roll}+2 💨` : `${roll}`;
+    const boostText = speedBoostUsed ? ' (Speed Boost used!)' : '';
+    showNotification(`🎲 ${currentPlayer.name} rolled a ${moveText}! Moving to square ${newPos}!${boostText} 🎯`, 'info');
     
     // Play movement sound
     playSound(audioUrls.playerMove);
 
+    // Update game state and clear speed boost if used
     setGameState(prev => ({
       ...prev,
       playerPositions: { ...prev.playerPositions, [currentPlayer.id]: newPos },
-      lastRoll: roll
+      lastRoll: roll,
+      ...(speedBoostUsed && {
+        playerPowerUps: {
+          ...prev.playerPowerUps,
+          [currentPlayer.id]: {
+            ...prev.playerPowerUps[currentPlayer.id],
+            speedBoost: false
+          }
+        }
+      })
     }));
 
     // Check for win
     if (newPos === 50) {
       playSound(audioUrls.victory); // Play victory sound
+      triggerConfetti(); // Big celebration for victory!
       setGameState(prev => ({
         ...prev,
         gamePhase: 'ended',
@@ -469,6 +593,7 @@ const Mi50Game = () => {
     
     if (isCorrect) {
       playSound(audioUrls.correctAnswer);
+      triggerConfetti(); // Celebrate correct answer with confetti!
       showNotification(`🎉 FANTASTIC! ${playerName} got it right! Great job! 🏆`, 'success');
       
       // Increase difficulty after correct answers (randomly)
@@ -939,15 +1064,109 @@ const Mi50Game = () => {
   if (gameState.gamePhase === 'ended') {
     const winner = gameState.players[gameState.winner];
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 h-screen overflow-hidden flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <Trophy className="w-24 h-24 text-yellow-500 mx-auto mb-6" />
-          <h1 className="text-4xl font-bold mb-4">🎉 Congratulations! 🎉</h1>
-          <p className="text-2xl mb-6">
-            <span className={`px-4 py-2 rounded-lg text-white ${winner.color}`}>
-              {winner.name}
-            </span> Wins!
-          </p>
+      <div className="h-screen overflow-hidden bg-gradient-to-br from-yellow-200 via-pink-200 via-purple-200 to-blue-200 relative flex items-center justify-center">
+        {/* Floating celebration elements */}
+        <div className="absolute top-10 left-10 w-24 h-24 bg-yellow-400 rounded-full opacity-80 animate-bounce"></div>
+        <div className="absolute top-20 right-20 w-16 h-16 bg-pink-400 rounded-full opacity-80 animate-bounce delay-1000"></div>
+        <div className="absolute bottom-20 left-20 w-20 h-20 bg-green-400 rounded-full opacity-80 animate-bounce delay-2000"></div>
+        <div className="absolute bottom-32 right-32 w-12 h-12 bg-purple-400 rounded-full opacity-80 animate-bounce delay-500"></div>
+        
+        <div className="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-4xl border-8 border-rainbow relative overflow-hidden">
+          {/* Sparkle effects */}
+          <div className="absolute top-4 left-4 text-4xl animate-bounce">✨</div>
+          <div className="absolute top-4 right-4 text-4xl animate-bounce delay-500">🎉</div>
+          <div className="absolute bottom-4 left-4 text-4xl animate-bounce delay-1000">🏆</div>
+          <div className="absolute bottom-4 right-4 text-4xl animate-bounce delay-1500">⭐</div>
+          
+          {/* Giant Trophy */}
+          <motion.div
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, -5, 0]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="mb-8"
+          >
+            <Trophy className="w-32 h-32 text-yellow-500 mx-auto" />
+          </motion.div>
+          
+          {/* Victory Title */}
+          <motion.h1 
+            className="text-6xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 drop-shadow-lg"
+            animate={{ 
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            🎉 VICTORY! 🎉
+          </motion.h1>
+          
+          {/* Winner announcement */}
+          <motion.div
+            className="mb-8"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <p className="text-3xl font-bold mb-4 text-gray-800">
+              <motion.span 
+                className={`px-6 py-3 rounded-2xl text-white text-4xl ${winner.color} border-4 border-white shadow-xl`}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                {winner.name} WINS!
+              </motion.span>
+            </p>
+          </motion.div>
+          
+          {/* Dancing monsters party! */}
+          <motion.div 
+            className="flex justify-center gap-8 mb-12"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            {gameState.players.map((player, index) => (
+              <motion.div
+                key={player.id}
+                className="flex flex-col items-center"
+                animate={{
+                  y: [0, -20, 0],
+                  rotate: [0, 10, -10, 0],
+                  scale: player.id === gameState.winner ? [1, 1.2, 1] : [1, 1.1, 1]
+                }}
+                transition={{
+                  duration: player.id === gameState.winner ? 1 : 1.5,
+                  repeat: Infinity,
+                  delay: index * 0.2
+                }}
+              >
+                {/* Dancing monster */}
+                <div className={`w-20 h-20 rounded-full border-4 border-white shadow-xl ${player.id === gameState.winner ? 'border-yellow-400' : ''}`}>
+                  <img 
+                    src={monsterSpriteUrls[player.character]} 
+                    alt={player.name} 
+                    className="w-full h-full rounded-full" 
+                  />
+                </div>
+                
+                {/* Player name */}
+                <motion.div 
+                  className={`mt-2 px-3 py-1 rounded-full text-sm font-bold border-2 ${
+                    player.id === gameState.winner 
+                      ? 'bg-yellow-200 border-yellow-400 text-yellow-800' 
+                      : 'bg-gray-200 border-gray-400 text-gray-800'
+                  }`}
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
+                >
+                  {player.name}
+                  {player.id === gameState.winner && <span className="ml-1">👑</span>}
+                </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+          
+          {/* Play again button */}
           <motion.button
             onClick={() => {
               playSound(audioUrls.buttonClick);
@@ -961,14 +1180,25 @@ const Mi50Game = () => {
                 triviaQuestion: null,
                 triviaPlayer: null,
                 winner: null,
-                notification: null
+                notification: null,
+                numPlayers: 0,
+                selectedCharacters: [],
+                playerPowerUps: {}
               });
             }}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-12 py-6 rounded-xl text-2xl font-bold shadow-lg border-4 border-white"
+            className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 text-white px-16 py-6 rounded-3xl text-3xl font-black shadow-2xl border-6 border-white transform"
             whileHover={{ scale: 1.1, y: -5 }}
             whileTap={{ scale: 0.95 }}
+            animate={{ 
+              boxShadow: [
+                "0 0 20px rgba(59, 130, 246, 0.4)",
+                "0 0 40px rgba(59, 130, 246, 0.6)",
+                "0 0 20px rgba(59, 130, 246, 0.4)"
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
           >
-            🎮 Play Again
+            🎮 Play Again! 🎮
           </motion.button>
         </div>
       </div>
@@ -978,15 +1208,15 @@ const Mi50Game = () => {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-indigo-300 via-purple-300 via-pink-300 to-rose-300 p-4">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-indigo-300 via-purple-300 via-pink-300 to-rose-300 flex flex-col items-center justify-center p-4">
       <AudioPlayer src={audioUrls.background} loop={true} isMuted={isMuted} />
       
-      {/* Header with title and controls */}
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
+      <div className="w-full max-w-7xl flex flex-col items-center">
+        {/* Header with title and controls */}
+        <div className="w-full flex justify-between items-center mb-6">
           <motion.h1 
             className="text-6xl font-black text-white drop-shadow-2xl"
-            animate={{ 
+            animate={{
               scale: [1, 1.02, 1],
               textShadow: [
                 "0 0 20px rgba(255,255,255,0.5)",
@@ -994,7 +1224,7 @@ const Mi50Game = () => {
                 "0 0 20px rgba(255,255,255,0.5)"
               ]
             }}
-            transition={{ 
+            transition={{
               duration: 3,
               repeat: Infinity,
               repeatType: "reverse"
@@ -1016,7 +1246,7 @@ const Mi50Game = () => {
         {/* Notification Banner - Fun TV Screen Style */}
         {gameState.notification && (
           <motion.div 
-            className="relative mb-8 p-6 rounded-3xl text-center font-black text-2xl border-6 border-white shadow-2xl bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400"
+            className="relative mb-8 p-6 rounded-3xl text-center font-black text-2xl border-6 border-white shadow-2xl bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400 w-full max-w-4xl"
             initial={{ scale: 0, rotate: 5 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0, rotate: -5 }}
@@ -1034,15 +1264,18 @@ const Mi50Game = () => {
           </motion.div>
         )}
 
-      {/* Game Board */}
-      <GameBoard 
-        players={gameState.players}
-        playerPositions={gameState.playerPositions}
-        specialSquares={specialSquares}
-      />
+        {/* Game Board */}
+        <div className="w-full max-w-4xl mb-6">
+          <GameBoard 
+            players={gameState.players}
+            playerPositions={gameState.playerPositions}
+            specialSquares={specialSquares}
+            animatingSquare={animatingSquare}
+          />
+        </div>
 
         {/* Game Controls */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border-8 border-gradient-to-r from-purple-400 to-pink-400 relative">
+        <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-8 border-8 border-gradient-to-r from-purple-400 to-pink-400 relative">
           {/* Decorative elements */}
           <div className="absolute -top-4 left-8 w-8 h-8 bg-yellow-400 rounded-full border-4 border-white"></div>
           <div className="absolute -top-4 right-8 w-8 h-8 bg-green-400 rounded-full border-4 border-white"></div>
@@ -1092,6 +1325,48 @@ const Mi50Game = () => {
                     🎲 Last roll: {gameState.lastRoll}
                   </motion.div>
                 )}
+                
+                {/* Power-ups display */}
+                {gameState.playerPowerUps[currentPlayer.id] && (
+                  <motion.div 
+                    className="flex gap-3 mt-2 flex-wrap"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {/* Stars */}
+                    {gameState.playerPowerUps[currentPlayer.id].stars > 0 && (
+                      <motion.div 
+                        className="bg-yellow-200 px-3 py-1 rounded-full text-lg font-bold border-2 border-yellow-400"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        ⭐ {gameState.playerPowerUps[currentPlayer.id].stars}/3
+                      </motion.div>
+                    )}
+                    
+                    {/* Speed Boost */}
+                    {gameState.playerPowerUps[currentPlayer.id].speedBoost && (
+                      <motion.div 
+                        className="bg-blue-200 px-3 py-1 rounded-full text-lg font-bold border-2 border-blue-400"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        💨 Speed +2
+                      </motion.div>
+                    )}
+                    
+                    {/* Shield */}
+                    {gameState.playerPowerUps[currentPlayer.id].shield && (
+                      <motion.div 
+                        className="bg-purple-200 px-3 py-1 rounded-full text-lg font-bold border-2 border-purple-400"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 1.8, repeat: Infinity }}
+                      >
+                        🛡️ Protected
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
               </div>
             </motion.div>
             
@@ -1124,6 +1399,40 @@ const Mi50Game = () => {
                 <span className="text-lg opacity-90">Click me!</span>
               </div>
             </motion.button>
+            
+            {/* 3-Star Extra Roll Button */}
+            {gameState.playerPowerUps[currentPlayer.id]?.stars >= 3 && (
+              <motion.button
+                onClick={() => {
+                  // Use 3 stars for extra roll
+                  setGameState(prev => ({
+                    ...prev,
+                    playerPowerUps: {
+                      ...prev.playerPowerUps,
+                      [currentPlayer.id]: {
+                        ...prev.playerPowerUps[currentPlayer.id],
+                        stars: prev.playerPowerUps[currentPlayer.id].stars - 3
+                      }
+                    }
+                  }));
+                  
+                  showNotification(`⭐⭐⭐ ${currentPlayer.name} used 3 stars for an EXTRA ROLL! 🎉`, 'success');
+                  // Player gets to roll again immediately - no turn change
+                }}
+                className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-white px-8 py-4 rounded-2xl font-black text-xl flex items-center gap-3 transition-all shadow-xl border-4 border-white mt-4"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+              >
+                <span className="text-3xl">⭐⭐⭐</span>
+                <div className="flex flex-col">
+                  <span className="drop-shadow-lg">Extra Roll!</span>
+                  <span className="text-sm opacity-90">Use 3 stars</span>
+                </div>
+              </motion.button>
+            )}
           </motion.div>
 
           {/* Player Status Cards */}
@@ -1210,6 +1519,17 @@ const Mi50Game = () => {
           )}
         </div>
       </div>
+      
+      {/* Confetti for celebrations */}
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={200}
+          gravity={0.3}
+          colors={['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8']}
+        />
+      )}
       
       {/* Tutorial Component */}
       <Tutorial
