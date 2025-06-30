@@ -515,7 +515,7 @@ const Mi50Game = () => {
 
   if (gameState.gamePhase === 'setup') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-300 via-purple-300 via-blue-300 to-cyan-300 flex items-center justify-center relative overflow-hidden">
+      <div className="h-screen overflow-hidden bg-gradient-to-br from-pink-300 via-purple-300 via-blue-300 to-cyan-300 flex items-center justify-center relative">
         {/* Floating decoration elements */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-yellow-400 rounded-full opacity-60 animate-bounce"></div>
         <div className="absolute top-32 right-20 w-16 h-16 bg-pink-400 rounded-full opacity-60 animate-bounce delay-1000"></div>
@@ -631,17 +631,15 @@ const Mi50Game = () => {
                     hover:shadow-2xl text-white px-8 py-6 rounded-2xl text-3xl font-black transition-all shadow-xl border-6 border-white transform hover:scale-110 min-w-[200px]
                   `}
                   whileHover={{ 
-                    scale: 1.1, 
-                    y: -10,
+                    scale: 1.1,
                     boxShadow: "0 25px 50px rgba(0,0,0,0.3)"
                   }}
                   whileTap={{ scale: 0.9 }}
                   animate={{ 
-                    y: [0, -5, 0],
+                    scale: [1, 1.02, 1],
                   }}
                   transition={{ 
-                    y: { duration: 2, repeat: Infinity, delay: index * 0.3 },
-                    scale: { duration: 0.2 },
+                    scale: { duration: 2, repeat: Infinity, delay: index * 0.3, repeatType: "reverse" },
                   }}
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -674,7 +672,7 @@ const Mi50Game = () => {
     const currentPlayerColor = playerColors[gameState.players.length];
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-300 via-teal-300 via-cyan-300 to-blue-300 flex items-center justify-center relative overflow-hidden">
+      <div className="h-screen overflow-hidden bg-gradient-to-br from-emerald-300 via-teal-300 via-cyan-300 to-blue-300 flex items-center justify-center relative">
         {/* Floating fun elements */}
         <div className="absolute top-16 left-16 w-16 h-16 bg-yellow-400 rounded-full opacity-70 animate-ping"></div>
         <div className="absolute top-40 right-32 w-20 h-20 bg-pink-400 rounded-full opacity-70 animate-pulse"></div>
@@ -757,18 +755,24 @@ const Mi50Game = () => {
                     }`}
                     initial={{ scale: 0, rotate: 180 }}
                     animate={{ 
-                      scale: 1, 
+                      scale: isAvailable ? [1, 1.03, 1] : 1, 
                       rotate: 0,
-                      y: isAvailable ? [0, -10, 0] : 0
                     }}
                     transition={{ 
-                      scale: { delay: index * 0.1, type: "spring", stiffness: 200 },
-                      rotate: { delay: index * 0.1, duration: 0.5 },
-                      y: { duration: 2, repeat: Infinity, delay: index * 0.2 }
+                      scale: { 
+                        delay: index * 0.1, 
+                        type: "spring", 
+                        stiffness: 200,
+                        ...(isAvailable && {
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        })
+                      },
+                      rotate: { delay: index * 0.1, duration: 0.5 }
                     }}
                     whileHover={isAvailable ? { 
-                      scale: 1.05, 
-                      y: -15,
+                      scale: 1.05,
                       boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
                     } : {}}
                     whileTap={isAvailable ? { scale: 0.95 } : {}}
@@ -865,7 +869,7 @@ const Mi50Game = () => {
     const showVisualAids = triviaQuestion.num1 <= 10 && triviaQuestion.num2 <= 10; // Only show for smaller numbers
     
     return (
-      <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen flex items-center justify-center">
+      <div className="max-w-6xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 h-screen overflow-hidden flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-4xl w-full">
           <Brain className="w-16 h-16 text-purple-500 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Math Time! 🧠</h2>
@@ -906,7 +910,6 @@ const Mi50Game = () => {
                   handleTriviaAnswer((e.target as HTMLInputElement).value);
                 }
               }}
-              autoFocus
             />
           </div>
 
@@ -936,7 +939,7 @@ const Mi50Game = () => {
   if (gameState.gamePhase === 'ended') {
     const winner = gameState.players[gameState.winner];
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen flex items-center justify-center">
+      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 h-screen overflow-hidden flex items-center justify-center">
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           <Trophy className="w-24 h-24 text-yellow-500 mx-auto mb-6" />
           <h1 className="text-4xl font-bold mb-4">🎉 Congratulations! 🎉</h1>
@@ -975,7 +978,7 @@ const Mi50Game = () => {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-300 via-purple-300 via-pink-300 to-rose-300 p-4">
+    <div className="h-screen overflow-hidden bg-gradient-to-br from-indigo-300 via-purple-300 via-pink-300 to-rose-300 p-4">
       <AudioPlayer src={audioUrls.background} loop={true} isMuted={isMuted} />
       
       {/* Header with title and controls */}
@@ -1243,7 +1246,7 @@ const Mi50Game = () => {
               onClick={handleDiceRoll}
               className={`bg-gradient-to-r from-orange-400 via-red-500 to-pink-600 hover:from-orange-500 hover:via-red-600 hover:to-pink-700 text-white px-12 py-8 rounded-3xl font-black text-3xl flex items-center gap-4 transition-all shadow-2xl border-6 border-white ${isRolling ? 'animate-pulse' : ''}`}
               disabled={gameState.gamePhase !== 'playing' || isRolling}
-              whileHover={{ scale: 1.05, y: -5 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               animate={isRolling ? { 
                 rotate: [0, 10, -10, 0],
@@ -1286,13 +1289,20 @@ const Mi50Game = () => {
                 }`}
                 initial={{ scale: 0, rotate: 10 }}
                 animate={{ 
-                  scale: 1, 
+                  scale: player.id === gameState.currentPlayerIndex ? [1, 1.05, 1] : 1, 
                   rotate: 0,
-                  y: player.id === gameState.currentPlayerIndex ? [0, -5, 0] : 0
                 }}
                 transition={{ 
-                  scale: { delay: index * 0.1, type: "spring", stiffness: 200 },
-                  y: { duration: 2, repeat: Infinity }
+                  scale: { 
+                    delay: index * 0.1, 
+                    type: "spring", 
+                    stiffness: 200,
+                    ...(player.id === gameState.currentPlayerIndex && {
+                      duration: 2,
+                      repeat: Infinity,
+                      repeatType: "reverse"
+                    })
+                  }
                 }}
               >
                 <div className="flex items-center gap-3 mb-3">

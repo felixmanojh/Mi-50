@@ -59,16 +59,12 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ player, position }) => {
       }}
       initial={{ scale: 0 }}
       animate={{ 
-        scale: 1,
-        y: [0, -8, 0], // Bounce effect
+        scale: [1, 1.1, 1], // Pulse effect instead of bounce
       }}
       transition={{ 
-        scale: { duration: 0.3 },
-        y: { duration: 1.5, repeat: Infinity, repeatType: "reverse" }
+        scale: { duration: 1.5, repeat: Infinity, repeatType: "reverse" }
       }}
       whileHover={{ scale: 1.2 }}
-      layout
-      layoutId={`player-${player.id}`}
     >
       {player.character !== undefined ? (
         <img
