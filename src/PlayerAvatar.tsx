@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { monsterSpriteUrls } from './constants';
 
 interface PlayerAvatarProps {
@@ -50,21 +49,13 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ player, position }) => {
   const style = boardPositions[position] || { top: '50%', left: '50%' }; // Fallback
 
   return (
-    <motion.div
+    <div
       className="absolute"
       style={{
         ...style,
         transform: 'translate(-50%, -50%)',
         zIndex: 10 + player.id, // Stack players if on same square
       }}
-      initial={{ scale: 0 }}
-      animate={{ 
-        scale: [1, 1.1, 1], // Pulse effect instead of bounce
-      }}
-      transition={{ 
-        scale: { duration: 1.5, repeat: Infinity, repeatType: "reverse" }
-      }}
-      whileHover={{ scale: 1.2 }}
     >
       {player.character !== undefined ? (
         <img
@@ -77,7 +68,7 @@ const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ player, position }) => {
           {player.name[0]}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

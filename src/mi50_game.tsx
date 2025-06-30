@@ -5,7 +5,6 @@ import { monsterSpriteUrls, boardBgUrl, audioUrls } from './constants'; // Impor
 import { AnimatePresence, motion } from 'framer-motion'; // Import AnimatePresence and motion
 import PlayerAvatar from './PlayerAvatar'; // Import PlayerAvatar
 import { useSound } from './SoundEffects'; // Import sound effects hook
-import SpecialSquareIndicator from './SpecialSquareIndicator'; // Import special square indicators
 import { useAudioPreloader, AudioLoadingScreen } from './AudioPreloader'; // Import audio preloader
 import Tutorial from './Tutorial'; // Import tutorial component
 import { VisualMathOperation } from './VisualMathAids'; // Import visual math aids
@@ -1035,147 +1034,97 @@ const Mi50Game = () => {
         )}
 
       {/* Game Board */}
-      <div className="relative bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 rounded-3xl shadow-2xl p-6 mb-6 border-8 border-white">
-        {/* Decorative border corners */}
-        <div className="absolute -top-4 -left-4 w-8 h-8 bg-yellow-400 rounded-full border-4 border-white"></div>
-        <div className="absolute -top-4 -right-4 w-8 h-8 bg-pink-400 rounded-full border-4 border-white"></div>
-        <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-blue-400 rounded-full border-4 border-white"></div>
-        <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-green-400 rounded-full border-4 border-white"></div>
+      <div className="relative bg-white rounded-lg shadow-lg p-6 mb-6 border-4 border-gray-300">
         
-        {/* Board Grid - Colorful numbered squares */}
-        <div className="grid grid-rows-5 gap-3 relative">
+        {/* Board Grid - Simple numbered squares without animations */}
+        <div className="w-full max-w-4xl mx-auto">
           {/* Row 1: 1-10 (left to right) */}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-10 gap-1 mb-1">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
               <div 
                 key={num} 
-                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                className={`aspect-square border-2 border-gray-800 rounded flex items-center justify-center text-lg font-bold ${
                   specialSquares[num] 
-                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
-                    : 'bg-gradient-to-br from-blue-400 to-purple-500 text-white'
+                    ? 'bg-yellow-200 text-orange-800' 
+                    : 'bg-blue-100 text-blue-800'
                 }`}
               >
-                <span className="drop-shadow-md">{num}</span>
-                {specialSquares[num] && (
-                  <div className="absolute top-0 right-0 text-xs">✨</div>
-                )}
+                {num}
               </div>
             ))}
           </div>
           
           {/* Row 2: 20-11 (right to left) */}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-10 gap-1 mb-1">
             {[20, 19, 18, 17, 16, 15, 14, 13, 12, 11].map(num => (
               <div 
                 key={num} 
-                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                className={`aspect-square border-2 border-gray-800 rounded flex items-center justify-center text-lg font-bold ${
                   specialSquares[num] 
-                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
-                    : 'bg-gradient-to-br from-green-400 to-teal-500 text-white'
+                    ? 'bg-yellow-200 text-orange-800' 
+                    : 'bg-green-100 text-green-800'
                 }`}
               >
-                <span className="drop-shadow-md">{num}</span>
-                {specialSquares[num] && (
-                  <div className="absolute top-0 right-0 text-xs">✨</div>
-                )}
+                {num}
               </div>
             ))}
           </div>
           
           {/* Row 3: 21-30 (left to right) */}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-10 gap-1 mb-1">
             {[21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(num => (
               <div 
                 key={num} 
-                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                className={`aspect-square border-2 border-gray-800 rounded flex items-center justify-center text-lg font-bold ${
                   specialSquares[num] 
-                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
-                    : 'bg-gradient-to-br from-pink-400 to-red-500 text-white'
+                    ? 'bg-yellow-200 text-orange-800' 
+                    : 'bg-pink-100 text-pink-800'
                 }`}
               >
-                <span className="drop-shadow-md">{num}</span>
-                {specialSquares[num] && (
-                  <div className="absolute top-0 right-0 text-xs">✨</div>
-                )}
+                {num}
               </div>
             ))}
           </div>
           
           {/* Row 4: 40-31 (right to left) */}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-10 gap-1 mb-1">
             {[40, 39, 38, 37, 36, 35, 34, 33, 32, 31].map(num => (
               <div 
                 key={num} 
-                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                className={`aspect-square border-2 border-gray-800 rounded flex items-center justify-center text-lg font-bold ${
                   specialSquares[num] 
-                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
-                    : 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white'
+                    ? 'bg-yellow-200 text-orange-800' 
+                    : 'bg-purple-100 text-purple-800'
                 }`}
               >
-                <span className="drop-shadow-md">{num}</span>
-                {specialSquares[num] && (
-                  <div className="absolute top-0 right-0 text-xs">✨</div>
-                )}
+                {num}
               </div>
             ))}
           </div>
           
           {/* Row 5: 41-50 (left to right) */}
-          <div className="grid grid-cols-10 gap-2">
+          <div className="grid grid-cols-10 gap-1 mb-1">
             {[41, 42, 43, 44, 45, 46, 47, 48, 49, 50].map(num => (
               <div 
                 key={num} 
-                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                className={`aspect-square border-2 border-gray-800 rounded flex items-center justify-center text-lg font-bold ${
                   num === 50 
-                    ? 'bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white animate-bounce' 
+                    ? 'bg-yellow-400 text-white' 
                     : specialSquares[num] 
-                      ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
-                      : 'bg-gradient-to-br from-emerald-400 to-cyan-500 text-white'
+                      ? 'bg-yellow-200 text-orange-800' 
+                      : 'bg-cyan-100 text-cyan-800'
                 }`}
               >
-                <span className="drop-shadow-md">{num === 50 ? '🏆' : num}</span>
-                {specialSquares[num] && num !== 50 && (
-                  <div className="absolute top-0 right-0 text-xs">✨</div>
-                )}
+                {num === 50 ? '🏆' : num}
               </div>
             ))}
           </div>
         </div>
         
         {/* Start square - positioned below the main grid */}
-        <div className="mt-4 mx-auto w-fit border-6 border-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-2xl px-8 py-4 text-3xl font-black text-white shadow-2xl">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl">🏁</span>
-            <span className="drop-shadow-lg">START</span>
-            <span className="text-4xl">🏁</span>
-          </div>
+        <div className="mt-4 mx-auto w-fit border-4 border-green-600 bg-green-200 rounded-lg px-6 py-3 text-xl font-bold text-center">
+          🏁 START 🏁
         </div>
-        
-        <AnimatePresence>
-          {specialAnimation && (
-            <motion.div
-              key={specialAnimation.type}
-              initial={{ opacity: 0, scale: 0.5, rotate: specialAnimation.direction === 'forward' ? -45 : 45 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.5, rotate: specialAnimation.direction === 'forward' ? 45 : -45 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="text-6xl">
-                {specialAnimation.direction === 'forward' ? '🚀' : '⬅️'}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        {/* Special Square Indicators */}
-        {Object.entries(specialSquares).map(([position, square]) => (
-          <SpecialSquareIndicator
-            key={position}
-            position={parseInt(position)}
-            type={square.type}
-            icon={square.icon}
-          />
-        ))}
         
         {/* Player Avatars */}
         {gameState.players.map(player => (
