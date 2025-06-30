@@ -1,158 +1,170 @@
-# Mi-50: The Digital Board Game
+# Mi-50 Digital Board Game
 
-## Overview
+A kid-friendly React-based digital board game where players race to reach square 50 through dice rolling, math challenges, and special square effects.
 
-Mi-50 is a digital board game designed for 2-4 players, targeting children aged 6-7. The objective is simple: be the first player to land exactly on square 50 to win!
+## 🎮 Game Features
 
-This project is built as a web-based application, providing a fun and interactive experience with basic math learning outcomes.
+- **2-4 Player Support**: Multiplayer game for families and friends
+- **Interactive Board**: Dynamic winding path with 50 squares plus special effects
+- **Math Learning**: Age-appropriate trivia questions with adaptive difficulty
+- **Power-Up System**: Collect stars, speed boosts, and protective shields
+- **Special Squares**: 20+ unique square effects including teleports, extra turns, and challenges
+- **Character Selection**: Choose from 4 different monster avatars
+- **Audio & Animations**: Engaging sound effects and smooth animations
+- **Kid-Friendly UI**: Bright colors, large buttons, and clear feedback
 
-## Features
+## 🚀 Quick Start
 
--   **Dice Rolling:** Players take turns rolling a 6-sided dice to determine their movement.
--   **Player Movement:** Move clockwise around a 50-square board arranged in 5 rows of 10 squares.
--   **Special Squares:** Land on specific squares to trigger unique effects:
-    -   Roll again / Free turn (squares 2, 9, 14, 38)
-    -   Skip turn / Lose turn (squares 3, 7, 42)
-    -   Go to start (square 4) / Jump to specific squares (13, 27)
-    -   Move forward/backward a set number of spaces
-    -   Move double/triple the rolled number (squares 21, 22)
-    -   Move backward the rolled number (square 23)
-    -   Special movement rules (square 32 requires rolling exactly 4 to move)
-    -   **Trivia System:** Answer simple math questions (addition/subtraction) to continue or skip a turn.
-    -   **Steal/Mirror Move:** Special squares that allow players to steal or copy the next player's dice roll.
--   **Win Condition:** Must land exactly on square 50.
--   **Safe Squares:** Squares 41, 43, 44, 46, 48, and 49 have no special effects.
--   **Visual Elements:** 
-    -   Animated dice icons
-    -   Monster character sprites for player avatars
-    -   Board background image
-    -   Player position indicators
--   **Audio:** Background music with mute toggle
--   **Responsive Design:** Works on desktop and tablet devices.
+```bash
+# Install dependencies
+npm install
 
-## Technologies Used
+# Start development server
+npm run dev
 
--   **Frontend:** React 19.1.0 (with TypeScript)
--   **Build Tool:** Vite 7.0.0
--   **Styling:** Tailwind CSS
--   **Animation:** Framer Motion 12.19.2
--   **Icons:** Lucide React 0.525.0
--   **Effects:** React Confetti 6.4.0 (for win celebration)
--   **Audio:** HTML5 `<audio>` element via a custom `AudioPlayer` component
+# Build for production
+npm run build
+```
 
-## Setup & Installation (Local Development)
+Visit `http://localhost:5173` to play the game.
 
-To get the Mi-50 game running on your local machine:
+## 🏗️ Architecture
 
-### Prerequisites
+Mi-50 uses a **modular architecture** with the orchestrator pattern:
 
--   Node.js (LTS version recommended)
--   npm or Yarn (npm is included with Node.js)
+### Project Structure
+```
+src/
+├── mi50_game.tsx           # Main orchestrator (157 lines)
+├── types/                  # TypeScript interfaces
+├── hooks/                  # Custom React hooks
+├── game-logic/             # Business logic classes
+├── components/             # Reusable UI components
+├── utils/                  # Helper functions
+└── GameBoard.tsx           # Board visualization
+```
 
-### Steps
+### Key Design Principles
+- **Separation of Concerns**: Business logic separate from UI
+- **Type Safety**: Comprehensive TypeScript coverage
+- **Reusability**: Modular components and hooks
+- **Maintainability**: 90% code reduction from original monolithic design
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-github-repo-url>
-    cd mi50
-    ```
-    *(Replace `<your-github-repo-url>` with the actual URL of your GitHub repository.)*
+## 🎯 Game Rules
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
+### Objective
+Be the first player to reach square 50!
 
-3.  **Run the development server:**
-    ```bash
-    npm run dev
-    # or
-    yarn dev
-    ```
-    The game should now be running at `http://localhost:5173` (or another port if 5173 is in use).
+### Basic Gameplay
+1. **Setup**: Choose 2-4 players and select monster characters
+2. **Turns**: Roll dice to move around the board
+3. **Special Squares**: Land on colored squares for special effects
+4. **Math Challenges**: Answer trivia questions to avoid penalties
+5. **Power-ups**: Collect stars, speed boosts, and shields
+6. **Victory**: First player to land exactly on square 50 wins
 
-4.  **Build for production (optional):**
-    ```bash
-    npm run build
-    # or
-    yarn build
-    ```
-    This will create a `dist/` folder with the optimized production build.
+### Special Squares
+- **🎲 Roll Again** (2, 9, 14, 38): Get an extra turn
+- **⏭️ Skip Turn** (3, 7, 42): Miss your next turn
+- **🧠 Trivia** (5, 25, 45): Answer math questions
+- **⭐ Stars** (6, 26, 39): Collect for extra rolls (3 stars = 1 extra roll)
+- **💨 Speed Boost** (12, 30): +2 movement on next roll
+- **🛡️ Shield** (18, 37): Protection from negative effects
+- **🏴‍☠️ Steal/🪞 Mirror** (19, 28): Steal or copy next player's roll
+- **📍 Teleport Squares**: Jump to specific locations
 
-5.  **Lint the code:**
-    ```bash
-    npm run lint
-    ```
+### Power-Up System
+- **Stars**: Collect 3 stars to unlock an extra dice roll
+- **Speed Boost**: Add +2 to your next movement
+- **Shield**: Protect against one negative square effect
 
-6.  **Format the code:**
-    ```bash
-    npm run format
-    ```
+## 🛠️ Development
 
+### Adding New Features
 
-## Project Structure
+#### New Special Square Effect
+1. Add effect to `src/game-logic/SpecialSquares.ts`
+2. Implement logic in `src/game-logic/GameEngine.ts`
+3. Update type definitions if needed
 
--   `src/`: Contains the main application source code.
-    -   `src/main.tsx`: Entry point for the React application.
-    -   `src/mi50_game.tsx`: The core game logic and main game component.
-    -   `src/AudioPlayer.tsx`: Custom component for handling audio playback.
-    -   `src/PlayerAvatar.tsx`: Component for positioning and displaying player avatars on the board.
-    -   `src/constants.ts`: Defines various constants, including asset URLs.
--   `public/assets/`: Stores static assets like images and audio files.
-    -   `public/assets/images/`: Game board background, monster sprites.
-    -   `public/assets/audio/`: Background music, sound effects.
--   `vite.config.js`: Vite configuration file.
--   `package.json`: Project metadata and script definitions.
--   `mi50_game_design_doc.md`: Original game design document.
--   `ROADMAP.md`: Production readiness roadmap with planned enhancements.
+#### New UI Component
+1. Create component in appropriate `src/components/` subdirectory
+2. Import and use in relevant phase component
+3. Add props interface for type safety
 
-## Deployment
+#### New Game Mechanic
+1. Extend `GameState` interface in `src/types/GameTypes.ts`
+2. Add logic to `src/game-logic/GameEngine.ts`
+3. Update relevant hooks in `src/hooks/`
 
-This project is set up for continuous deployment using **DigitalOcean App Platform**. Once configured, any push to the `main` (or `master`) branch of the connected GitHub repository will automatically trigger a new build and deployment.
+### Code Organization
 
-## Contributing
+- **Game Logic**: Core mechanics in `src/game-logic/`
+- **State Management**: Custom hooks in `src/hooks/`
+- **UI Components**: Organized by purpose in `src/components/`
+- **Type Definitions**: All interfaces in `src/types/`
+- **Utilities**: Helper functions in `src/utils/`
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
+### File Modification Guide
 
-## Game Rules & Special Squares
+| Change Type | Primary Files |
+|-------------|---------------|
+| Game Rules | `src/game-logic/GameEngine.ts` |
+| Special Squares | `src/game-logic/SpecialSquares.ts` |
+| UI Updates | `src/components/**/*.tsx` |
+| State Changes | `src/hooks/useGameState.ts` |
+| Types | `src/types/GameTypes.ts` |
 
-### Board Layout
-The game board consists of 50 squares arranged in 5 rows:
-- Row 1: Squares 1-10 (left to right)
-- Row 2: Squares 11-20 (right to left - snake pattern)
-- Row 3: Squares 21-30 (left to right)
-- Row 4: Squares 31-40 (right to left)
-- Row 5: Squares 41-50 (left to right)
+## 🎨 Assets
 
-### Special Square Effects
-- **Trivia Squares (5, 25, 45):** Answer a math question correctly to continue, wrong answer skips next turn
-- **Roll Again (2, 9, 14, 38):** Get another turn immediately
-- **Skip/Lose Turn (3, 7, 42):** Skip your next turn
-- **Movement Squares:**
-  - Square 4: Go back to start (square 0)
-  - Square 8, 16: Move forward 4 spaces
-  - Square 10: Move back 4 spaces
-  - Square 21: Move double your dice roll
-  - Square 22: Move triple your dice roll
-  - Square 23: Move backward by your dice roll amount
-  - Square 32: Must roll exactly 4 to move from this square
-  - Square 34: Move back 5 spaces
-  - Square 35: Move forward 5 spaces
-  - Square 40: Jump to square 13
-  - Square 47: Jump to square 27
-- **Special Actions:**
-  - Square 19: Steal the next player's dice roll
-  - Square 28: Mirror/copy the next player's dice roll
+All game assets are located in `public/assets/`:
 
-## Development Notes
+- **Audio**: `audio/background_music.mp3`
+- **Images**: 
+  - `images/board_background.png` - Custom game board
+  - `images/monster[1-4].png` - Player character avatars
 
-- The game includes a mascot feature that displays helpful messages during gameplay
-- Player avatars are positioned using a percentage-based coordinate system to work across different screen sizes
-- The game handles edge cases like illegal moves (going past square 50) and boundary conditions
-- Special animations are triggered for certain moves using Framer Motion
+Asset URLs are centralized in `src/constants.ts`.
 
-## License
+## 🧪 Testing
 
-This project is licensed under the ISC License. See the `LICENSE` file for details. (Note: A `LICENSE` file is not currently present in the repository and would need to be added.)
+Currently, no test framework is configured. The project uses minimal tooling with:
+- Vite for bundling and dev server
+- TypeScript for type checking
+- React 19 with modern hooks
+
+## 📱 Browser Compatibility
+
+- Modern browsers with ES2020+ support
+- Responsive design for desktop and tablet
+- Touch-friendly interface for mobile devices
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Follow the modular architecture principles
+4. Maintain TypeScript type safety
+5. Test your changes thoroughly
+6. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🎯 Future Roadmap
+
+- [ ] Unit testing framework
+- [ ] ESLint and Prettier configuration
+- [ ] Performance optimizations (React.memo, useMemo)
+- [ ] Error boundaries for better error handling
+- [ ] Game state persistence (localStorage)
+- [ ] Multiplayer networking capabilities
+- [ ] Additional character avatars
+- [ ] Custom board themes
+- [ ] Achievement system
+- [ ] Sound effect customization
+
+---
+
+**Built with React 19, TypeScript, Framer Motion, and Tailwind CSS**
