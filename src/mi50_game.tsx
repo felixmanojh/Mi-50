@@ -515,47 +515,153 @@ const Mi50Game = () => {
 
   if (gameState.gamePhase === 'setup') {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-purple-600 mb-2">Mi-50</h1>
-          <p className="text-gray-600">Race to square 50 and win!</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-pink-300 via-purple-300 via-blue-300 to-cyan-300 flex items-center justify-center relative overflow-hidden">
+        {/* Floating decoration elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-yellow-400 rounded-full opacity-60 animate-bounce"></div>
+        <div className="absolute top-32 right-20 w-16 h-16 bg-pink-400 rounded-full opacity-60 animate-bounce delay-1000"></div>
+        <div className="absolute bottom-20 left-32 w-24 h-24 bg-green-400 rounded-full opacity-60 animate-bounce delay-2000"></div>
+        <div className="absolute bottom-40 right-16 w-12 h-12 bg-purple-400 rounded-full opacity-60 animate-bounce delay-500"></div>
         
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <Users className="w-16 h-16 text-blue-500 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold mb-6">How many players?</h2>
-          
-          {/* Tutorial Button */}
-          <div className="mb-6">
-            <motion.button
-              onClick={() => {
-                playSound(audioUrls.buttonClick);
-                setShowTutorial(true);
+        <div className="max-w-4xl mx-auto p-8">
+          {/* Title Section */}
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.h1 
+              className="text-8xl font-black text-white mb-4 drop-shadow-2xl"
+              animate={{ 
+                scale: [1, 1.05, 1],
+                textShadow: [
+                  "0 0 20px rgba(255,255,255,0.5)",
+                  "0 0 30px rgba(255,255,255,0.8)",
+                  "0 0 20px rgba(255,255,255,0.5)"
+                ]
               }}
-              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-3 rounded-xl text-lg font-bold transition-all shadow-lg border-2 border-white"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
             >
-              🎓 How to Play (Tutorial)
-            </motion.button>
-          </div>
-
-          <div className="flex gap-4 justify-center">
-            {[2, 3, 4].map(num => (
+              Mi-50
+            </motion.h1>
+            <motion.div 
+              className="text-3xl font-bold text-white mb-2 drop-shadow-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              🎯 Race to square 50 and win! 🏆
+            </motion.div>
+            <motion.div 
+              className="text-xl text-white opacity-90"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              🎲 Roll dice, solve math, have fun! 🌟
+            </motion.div>
+          </motion.div>
+          
+          {/* Main Game Setup Card */}
+          <motion.div 
+            className="bg-white rounded-3xl shadow-2xl p-10 text-center border-8 border-gradient-to-r from-yellow-400 to-pink-400 relative"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            {/* Decorative elements on card */}
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-rainbow rounded-full flex items-center justify-center text-2xl border-4 border-white shadow-lg">
+              🎪
+            </div>
+            
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Users className="w-24 h-24 text-purple-500 mx-auto mb-8" />
+            </motion.div>
+            
+            <h2 className="text-4xl font-black text-gray-800 mb-8 drop-shadow-md">
+              🎮 How many players want to play? 🎮
+            </h2>
+            
+            {/* Tutorial Button */}
+            <motion.div className="mb-10">
               <motion.button
-                key={num}
                 onClick={() => {
                   playSound(audioUrls.buttonClick);
-                  setupGame(num);
+                  setShowTutorial(true);
                 }}
-                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white px-12 py-6 rounded-xl text-2xl font-bold transition-all shadow-lg border-4 border-white"
-                whileHover={{ scale: 1.1, y: -5 }}
+                className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white px-10 py-4 rounded-2xl text-2xl font-black transition-all shadow-2xl border-4 border-white transform hover:scale-105"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+                }}
                 whileTap={{ scale: 0.95 }}
+                animate={{ 
+                  boxShadow: [
+                    "0 0 20px rgba(168, 85, 247, 0.4)",
+                    "0 0 40px rgba(168, 85, 247, 0.6)",
+                    "0 0 20px rgba(168, 85, 247, 0.4)"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
               >
-                🎮 {num} Players
+                🎓 How to Play (Tutorial) 📚
               </motion.button>
-            ))}
-          </div>
+            </motion.div>
+
+            {/* Player Selection Buttons */}
+            <div className="flex gap-8 justify-center flex-wrap">
+              {[2, 3, 4].map((num, index) => (
+                <motion.button
+                  key={num}
+                  onClick={() => {
+                    playSound(audioUrls.buttonClick);
+                    setupGame(num);
+                  }}
+                  className={`
+                    ${index === 0 ? 'bg-gradient-to-r from-green-400 to-blue-500' : ''}
+                    ${index === 1 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' : ''}
+                    ${index === 2 ? 'bg-gradient-to-r from-pink-400 to-purple-500' : ''}
+                    hover:shadow-2xl text-white px-8 py-6 rounded-2xl text-3xl font-black transition-all shadow-xl border-6 border-white transform hover:scale-110 min-w-[200px]
+                  `}
+                  whileHover={{ 
+                    scale: 1.1, 
+                    y: -10,
+                    boxShadow: "0 25px 50px rgba(0,0,0,0.3)"
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                  animate={{ 
+                    y: [0, -5, 0],
+                  }}
+                  transition={{ 
+                    y: { duration: 2, repeat: Infinity, delay: index * 0.3 },
+                    scale: { duration: 0.2 },
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-4xl">👥</span>
+                    <span className="drop-shadow-lg">{num} Players</span>
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+            
+            {/* Fun encouragement text */}
+            <motion.div 
+              className="mt-8 text-lg text-gray-600 font-bold"
+              animate={{ opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              ✨ Choose your adventure! More players = More fun! ✨
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     );
@@ -564,64 +670,191 @@ const Mi50Game = () => {
   
   if (gameState.gamePhase === 'characterSelection') {
     const availableCharacters = monsterSpriteUrls.filter((_, index) => !gameState.selectedCharacters.includes(index));
+    const currentPlayerName = playerNames[gameState.players.length];
+    const currentPlayerColor = playerColors[gameState.players.length];
 
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-purple-600 mb-2">Choose Your Monster! 👾</h1>
-          <p className="text-2xl text-gray-600">{playerNames[gameState.players.length]}, pick your character!</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-300 via-teal-300 via-cyan-300 to-blue-300 flex items-center justify-center relative overflow-hidden">
+        {/* Floating fun elements */}
+        <div className="absolute top-16 left-16 w-16 h-16 bg-yellow-400 rounded-full opacity-70 animate-ping"></div>
+        <div className="absolute top-40 right-32 w-20 h-20 bg-pink-400 rounded-full opacity-70 animate-pulse"></div>
+        <div className="absolute bottom-32 left-20 w-14 h-14 bg-purple-400 rounded-full opacity-70 animate-bounce"></div>
+        <div className="absolute bottom-16 right-40 w-18 h-18 bg-green-400 rounded-full opacity-70 animate-spin"></div>
         
-        {/* Notification Banner */}
-        {gameState.notification && (
-          <div className="relative mb-6 p-6 rounded-xl text-center font-bold text-xl border-4 shadow-lg bg-white">
-            <div className="relative z-10">
-              📺 <span>{gameState.notification.message}</span>
-            </div>
-          </div>
-        )}
-        
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="flex gap-6 justify-center flex-wrap">
-            {monsterSpriteUrls.map((url, index) => {
-              const isSelected = gameState.selectedCharacters.includes(index);
-              const isAvailable = !isSelected;
-              
-              return (
-                <motion.div
-                  key={index}
-                  className={`relative p-4 rounded-xl border-4 ${
-                    isSelected 
-                      ? 'border-gray-400 bg-gray-100 opacity-50' 
-                      : 'border-transparent hover:border-purple-500 bg-gradient-to-br from-purple-100 to-pink-100'
-                  }`}
-                >
-                  <motion.img
-                    src={url}
-                    alt={`Monster ${index + 1}`}
-                    className={`w-32 h-32 cursor-pointer rounded-full ${
-                      isSelected ? 'grayscale' : ''
-                    }`}
-                    onClick={() => isAvailable && handleCharacterSelect(index)}
-                    whileHover={isAvailable ? { scale: 1.1, y: -10 } : {}}
-                    whileTap={isAvailable ? { scale: 0.9 } : {}}
-                  />
-                  {isSelected && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl">✅</span>
-                    </div>
-                  )}
-                  <p className="mt-2 font-bold text-lg">Monster {index + 1}</p>
-                </motion.div>
-              );
-            })}
-          </div>
+        <div className="max-w-6xl mx-auto p-8 w-full">
+          {/* Title Section */}
+          <motion.div 
+            className="text-center mb-10"
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.h1 
+              className="text-7xl font-black text-white mb-4 drop-shadow-2xl"
+              animate={{ 
+                rotate: [0, 2, -2, 0],
+                scale: [1, 1.02, 1]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            >
+              👾 Choose Your Monster! 👾
+            </motion.h1>
+            
+            <motion.div 
+              className={`inline-block text-4xl font-black text-white mb-4 px-8 py-3 rounded-2xl border-4 border-white shadow-2xl ${currentPlayerColor}`}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            >
+              🎮 {currentPlayerName}, pick your buddy! 🎯
+            </motion.div>
+          </motion.div>
           
-          <div className="mt-8">
-            <p className="text-lg text-gray-600">
-              Selected: {gameState.players.length} / {gameState.numPlayers} players
-            </p>
-          </div>
+          {/* Notification Banner */}
+          {gameState.notification && (
+            <motion.div 
+              className="relative mb-8 p-6 rounded-3xl text-center font-black text-2xl border-6 border-white shadow-2xl bg-gradient-to-r from-yellow-300 to-orange-400"
+              initial={{ scale: 0, rotate: 10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <div className="absolute -top-3 -left-3 w-12 h-12 bg-red-400 rounded-full flex items-center justify-center text-2xl border-4 border-white">
+                📺
+              </div>
+              <div className="relative z-10 text-white drop-shadow-lg">
+                {gameState.notification.message}
+              </div>
+            </motion.div>
+          )}
+          
+          {/* Character Selection Grid */}
+          <motion.div 
+            className="bg-white rounded-3xl shadow-2xl p-8 border-8 border-gradient-to-r from-purple-400 to-pink-400 relative"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            {/* Decorative stars */}
+            <div className="absolute -top-4 left-8 text-4xl animate-spin">⭐</div>
+            <div className="absolute -top-4 right-8 text-4xl animate-spin delay-1000">⭐</div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 justify-center">
+              {monsterSpriteUrls.map((url, index) => {
+                const isSelected = gameState.selectedCharacters.includes(index);
+                const isAvailable = !isSelected;
+                
+                return (
+                  <motion.div
+                    key={index}
+                    className={`relative p-6 rounded-3xl border-6 cursor-pointer transition-all ${
+                      isSelected 
+                        ? 'border-gray-400 bg-gray-200 opacity-60' 
+                        : 'border-transparent hover:border-purple-500 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 hover:shadow-2xl'
+                    }`}
+                    initial={{ scale: 0, rotate: 180 }}
+                    animate={{ 
+                      scale: 1, 
+                      rotate: 0,
+                      y: isAvailable ? [0, -10, 0] : 0
+                    }}
+                    transition={{ 
+                      scale: { delay: index * 0.1, type: "spring", stiffness: 200 },
+                      rotate: { delay: index * 0.1, duration: 0.5 },
+                      y: { duration: 2, repeat: Infinity, delay: index * 0.2 }
+                    }}
+                    whileHover={isAvailable ? { 
+                      scale: 1.05, 
+                      y: -15,
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+                    } : {}}
+                    whileTap={isAvailable ? { scale: 0.95 } : {}}
+                    onClick={() => isAvailable && handleCharacterSelect(index)}
+                  >
+                    {/* Monster image with glowing effect */}
+                    <div className={`relative ${isAvailable ? 'animate-pulse' : ''}`}>
+                      <motion.img
+                        src={url}
+                        alt={`Monster ${index + 1}`}
+                        className={`w-40 h-40 rounded-full border-6 border-white shadow-xl ${
+                          isSelected ? 'grayscale' : ''
+                        }`}
+                        animate={isAvailable ? {
+                          boxShadow: [
+                            "0 0 20px rgba(168, 85, 247, 0.3)",
+                            "0 0 40px rgba(168, 85, 247, 0.6)",
+                            "0 0 20px rgba(168, 85, 247, 0.3)"
+                          ]
+                        } : {}}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      
+                      {/* Selection overlay */}
+                      {isSelected && (
+                        <motion.div 
+                          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200 }}
+                        >
+                          <span className="text-6xl animate-bounce">✅</span>
+                        </motion.div>
+                      )}
+                      
+                      {/* Available indicator */}
+                      {isAvailable && (
+                        <motion.div 
+                          className="absolute -top-2 -right-2 w-8 h-8 bg-green-400 rounded-full flex items-center justify-center border-4 border-white"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        >
+                          <span className="text-lg">✨</span>
+                        </motion.div>
+                      )}
+                    </div>
+                    
+                    {/* Monster name */}
+                    <motion.p 
+                      className={`mt-4 font-black text-xl ${isSelected ? 'text-gray-500' : 'text-purple-600'}`}
+                      animate={isAvailable ? { color: ["#7c3aed", "#ec4899", "#7c3aed"] } : {}}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      🦸 Monster {index + 1} 🦸
+                    </motion.p>
+                  </motion.div>
+                );
+              })}
+            </div>
+            
+            {/* Progress indicator */}
+            <motion.div 
+              className="mt-10 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-2xl font-black inline-block border-4 border-white shadow-xl">
+                🎯 Selected: {gameState.players.length} / {gameState.numPlayers} players 🎯
+              </div>
+              
+              {/* Progress bar */}
+              <div className="mt-4 w-full max-w-md mx-auto bg-gray-200 rounded-full h-6 border-4 border-white shadow-lg">
+                <motion.div 
+                  className="bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full flex items-center justify-center text-white font-bold"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${(gameState.players.length / gameState.numPlayers) * 100}%` }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {gameState.players.length > 0 && (
+                    <span className="text-sm">🚀</span>
+                  )}
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     );
@@ -742,100 +975,177 @@ const Mi50Game = () => {
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
 
   return (
-    <div className="max-w-6xl mx-auto p-4 bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-300 via-purple-300 via-pink-300 to-rose-300 p-4">
       <AudioPlayer src={audioUrls.background} loop={true} isMuted={isMuted} />
-      <div className="text-center mb-6">
-        
-        <button onClick={() => setIsMuted(!isMuted)} className="absolute top-4 right-4 text-2xl">
-          {isMuted ? '🔇' : '🔊'}
-        </button>
-        <h1 className="text-4xl font-bold text-purple-600 mb-2">Mi-50</h1>
+      
+      {/* Header with title and controls */}
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <motion.h1 
+            className="text-6xl font-black text-white drop-shadow-2xl"
+            animate={{ 
+              scale: [1, 1.02, 1],
+              textShadow: [
+                "0 0 20px rgba(255,255,255,0.5)",
+                "0 0 30px rgba(255,255,255,0.8)",  
+                "0 0 20px rgba(255,255,255,0.5)"
+              ]
+            }}
+            transition={{ 
+              duration: 3,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+          >
+            🎯 Mi-50 🎯
+          </motion.h1>
+          
+          <motion.button 
+            onClick={() => setIsMuted(!isMuted)} 
+            className="text-5xl bg-white rounded-full p-4 border-4 border-purple-500 shadow-2xl hover:scale-110 transition-all"
+            whileHover={{ scale: 1.1, rotate: 10 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {isMuted ? '🔇' : '🔊'}
+          </motion.button>
+        </div>
 
-      </div>
-
-      {/* Notification Banner - TV Screen Style */}
-      {gameState.notification && (
-        <div className="relative mb-6 p-6 rounded-xl text-center font-bold text-xl border-4 shadow-lg bg-white">
-            <div className="absolute -top-4 -left-4 w-12 h-12 bg-white transform rotate-45"></div>
-            <div className="absolute -top-4 -right-4 w-12 h-12 bg-white transform -rotate-45"></div>
-            <div className="relative z-10">
+        {/* Notification Banner - Fun TV Screen Style */}
+        {gameState.notification && (
+          <motion.div 
+            className="relative mb-8 p-6 rounded-3xl text-center font-black text-2xl border-6 border-white shadow-2xl bg-gradient-to-r from-yellow-300 via-orange-400 to-red-400"
+            initial={{ scale: 0, rotate: 5 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: -5 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            <div className="absolute -top-4 -left-4 w-12 h-12 bg-purple-400 rounded-full flex items-center justify-center text-2xl border-4 border-white animate-bounce">
               📺
-              <span>{gameState.notification.message}</span>
             </div>
-          </div>
-      )}
+            <div className="absolute -top-4 -right-4 w-12 h-12 bg-green-400 rounded-full flex items-center justify-center text-2xl border-4 border-white animate-bounce delay-500">
+              ✨
+            </div>
+            <div className="relative z-10 text-white drop-shadow-lg">
+              {gameState.notification.message}
+            </div>
+          </motion.div>
+        )}
 
       {/* Game Board */}
-      <div 
-        className="relative bg-cover bg-center rounded-lg shadow-lg p-4 mb-6"
-        style={{ backgroundImage: `url(${boardBgUrl})`, height: '600px' }}
-      >
-        {/* Board Grid - Show numbered squares */}
-        <div className="absolute inset-4 grid grid-rows-5 gap-1">
+      <div className="relative bg-gradient-to-br from-purple-200 via-pink-200 to-blue-200 rounded-3xl shadow-2xl p-6 mb-6 border-8 border-white">
+        {/* Decorative border corners */}
+        <div className="absolute -top-4 -left-4 w-8 h-8 bg-yellow-400 rounded-full border-4 border-white"></div>
+        <div className="absolute -top-4 -right-4 w-8 h-8 bg-pink-400 rounded-full border-4 border-white"></div>
+        <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-blue-400 rounded-full border-4 border-white"></div>
+        <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-green-400 rounded-full border-4 border-white"></div>
+        
+        {/* Board Grid - Colorful numbered squares */}
+        <div className="grid grid-rows-5 gap-3 relative">
           {/* Row 1: 1-10 (left to right) */}
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-10 gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
               <div 
                 key={num} 
-                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                  specialSquares[num] 
+                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
+                    : 'bg-gradient-to-br from-blue-400 to-purple-500 text-white'
+                }`}
               >
-                {num}
+                <span className="drop-shadow-md">{num}</span>
+                {specialSquares[num] && (
+                  <div className="absolute top-0 right-0 text-xs">✨</div>
+                )}
               </div>
             ))}
           </div>
           
           {/* Row 2: 20-11 (right to left) */}
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-10 gap-2">
             {[20, 19, 18, 17, 16, 15, 14, 13, 12, 11].map(num => (
               <div 
                 key={num} 
-                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                  specialSquares[num] 
+                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
+                    : 'bg-gradient-to-br from-green-400 to-teal-500 text-white'
+                }`}
               >
-                {num}
+                <span className="drop-shadow-md">{num}</span>
+                {specialSquares[num] && (
+                  <div className="absolute top-0 right-0 text-xs">✨</div>
+                )}
               </div>
             ))}
           </div>
           
           {/* Row 3: 21-30 (left to right) */}
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-10 gap-2">
             {[21, 22, 23, 24, 25, 26, 27, 28, 29, 30].map(num => (
               <div 
                 key={num} 
-                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                  specialSquares[num] 
+                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
+                    : 'bg-gradient-to-br from-pink-400 to-red-500 text-white'
+                }`}
               >
-                {num}
+                <span className="drop-shadow-md">{num}</span>
+                {specialSquares[num] && (
+                  <div className="absolute top-0 right-0 text-xs">✨</div>
+                )}
               </div>
             ))}
           </div>
           
           {/* Row 4: 40-31 (right to left) */}
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-10 gap-2">
             {[40, 39, 38, 37, 36, 35, 34, 33, 32, 31].map(num => (
               <div 
                 key={num} 
-                className={`border-2 border-gray-800 bg-white bg-opacity-80 rounded flex items-center justify-center text-lg font-bold ${specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : ''}`}
+                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                  specialSquares[num] 
+                    ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
+                    : 'bg-gradient-to-br from-purple-400 to-indigo-500 text-white'
+                }`}
               >
-                {num}
+                <span className="drop-shadow-md">{num}</span>
+                {specialSquares[num] && (
+                  <div className="absolute top-0 right-0 text-xs">✨</div>
+                )}
               </div>
             ))}
           </div>
           
           {/* Row 5: 41-50 (left to right) */}
-          <div className="grid grid-cols-10 gap-1">
+          <div className="grid grid-cols-10 gap-2">
             {[41, 42, 43, 44, 45, 46, 47, 48, 49, 50].map(num => (
               <div 
                 key={num} 
-                className={`border-2 border-gray-800 ${num === 50 ? 'bg-yellow-400 bg-opacity-90 text-white font-extrabold' : specialSquares[num] ? 'bg-yellow-200 bg-opacity-90' : 'bg-white bg-opacity-80'} rounded flex items-center justify-center text-lg font-bold`}
+                className={`aspect-square border-4 border-white rounded-xl flex items-center justify-center text-2xl font-black shadow-lg transition-all hover:scale-105 ${
+                  num === 50 
+                    ? 'bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500 text-white animate-bounce' 
+                    : specialSquares[num] 
+                      ? 'bg-gradient-to-br from-yellow-300 to-orange-400 text-orange-800 animate-pulse' 
+                      : 'bg-gradient-to-br from-emerald-400 to-cyan-500 text-white'
+                }`}
               >
-                {num === 50 ? '🏆' : num}
+                <span className="drop-shadow-md">{num === 50 ? '🏆' : num}</span>
+                {specialSquares[num] && num !== 50 && (
+                  <div className="absolute top-0 right-0 text-xs">✨</div>
+                )}
               </div>
             ))}
           </div>
         </div>
         
         {/* Start square - positioned below the main grid */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 border-4 border-green-600 bg-green-200 bg-opacity-90 rounded-lg px-4 py-2 text-xl font-bold text-center">
-          🏁 START
+        <div className="mt-4 mx-auto w-fit border-6 border-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 rounded-2xl px-8 py-4 text-3xl font-black text-white shadow-2xl">
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">🏁</span>
+            <span className="drop-shadow-lg">START</span>
+            <span className="text-4xl">🏁</span>
+          </div>
         </div>
         
         <AnimatePresence>
@@ -874,71 +1184,167 @@ const Mi50Game = () => {
         ))}
       </div>
 
-      {/* Game Controls */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${currentPlayer.color}`}>
-              {currentPlayer.name[0]}
-            </div>
-            <div>
-              <div className="font-bold text-lg">{currentPlayer.name}'s Turn</div>
-              {gameState.lastRoll > 0 && (
-                <div className="text-gray-600">Last roll: {gameState.lastRoll}</div>
-              )}
-            </div>
-          </div>
+        {/* Game Controls */}
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border-8 border-gradient-to-r from-purple-400 to-pink-400 relative">
+          {/* Decorative elements */}
+          <div className="absolute -top-4 left-8 w-8 h-8 bg-yellow-400 rounded-full border-4 border-white"></div>
+          <div className="absolute -top-4 right-8 w-8 h-8 bg-green-400 rounded-full border-4 border-white"></div>
           
-          <motion.button
-            onClick={handleDiceRoll}
-            className={`bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-bold text-xl flex items-center gap-2 transition-all shadow-lg ${isRolling ? 'animate-pulse' : ''}`}
-            disabled={gameState.gamePhase !== 'playing' || isRolling}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          {/* Current Player and Dice Section */}
+          <motion.div 
+            className="flex flex-col lg:flex-row items-center justify-between gap-8 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <motion.div
-              animate={isRolling ? { rotateX: 360, rotateY: 360 } : {}}
-              transition={{ duration: 0.1, repeat: isRolling ? Infinity : 0 }}
+            {/* Current Player Info */}
+            <motion.div 
+              className="flex items-center gap-6 bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl border-4 border-white shadow-lg"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
             >
-              {gameState.lastRoll > 0 ? getDiceIcon(gameState.lastRoll) : <Dice1 className="w-8 h-8" />}
+              <motion.div 
+                className={`w-20 h-20 rounded-full flex items-center justify-center text-white font-black text-3xl shadow-lg border-4 border-white ${currentPlayer.color}`}
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              >
+                {currentPlayer.character !== undefined ? (
+                  <img
+                    src={monsterSpriteUrls[currentPlayer.character]}
+                    alt={currentPlayer.name}
+                    className="w-16 h-16 rounded-full"
+                  />
+                ) : (
+                  currentPlayer.name[0]
+                )}
+              </motion.div>
+              <div>
+                <motion.div 
+                  className="font-black text-3xl text-purple-700 drop-shadow-md"
+                  animate={{ color: ["#7c3aed", "#ec4899", "#7c3aed"] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  🎮 {currentPlayer.name}'s Turn! 🎯
+                </motion.div>
+                {gameState.lastRoll > 0 && (
+                  <motion.div 
+                    className="text-xl text-gray-600 font-bold"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                  >
+                    🎲 Last roll: {gameState.lastRoll}
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
-            {isRolling ? 'Rolling...' : 'Roll Dice'}
-          </motion.button>
-        </div>
-
-        {/* Player Status */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {gameState.players.map(player => (
-            <div
-              key={player.id}
-              className={`p-3 rounded-lg border-2 ${
-                player.id === gameState.currentPlayerIndex 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-200'
-              }`}
+            
+            {/* Giant Dice Button */}
+            <motion.button
+              onClick={handleDiceRoll}
+              className={`bg-gradient-to-r from-orange-400 via-red-500 to-pink-600 hover:from-orange-500 hover:via-red-600 hover:to-pink-700 text-white px-12 py-8 rounded-3xl font-black text-3xl flex items-center gap-4 transition-all shadow-2xl border-6 border-white ${isRolling ? 'animate-pulse' : ''}`}
+              disabled={gameState.gamePhase !== 'playing' || isRolling}
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+              animate={isRolling ? { 
+                rotate: [0, 10, -10, 0],
+                scale: [1, 1.1, 1]
+              } : {}}
+              transition={{ duration: 0.2 }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <div className={`w-6 h-6 rounded-full ${player.color}`}></div>
-                <span className="font-bold">{player.name}</span>
+              <motion.div
+                animate={isRolling ? { 
+                  rotateX: [0, 360], 
+                  rotateY: [0, 360],
+                  scale: [1, 1.2, 1]
+                } : {}}
+                transition={{ duration: 0.3, repeat: isRolling ? Infinity : 0 }}
+                className="text-6xl"
+              >
+                {gameState.lastRoll > 0 ? getDiceIcon(gameState.lastRoll) : <Dice1 className="w-16 h-16" />}
+              </motion.div>
+              <div className="flex flex-col">
+                <span className="drop-shadow-lg">{isRolling ? '🎲 Rolling...' : '🎲 Roll Dice!'}</span>
+                <span className="text-lg opacity-90">Click me!</span>
               </div>
-              <div className="text-sm text-gray-600">
-                Position: {gameState.playerPositions[player.id]}
-              </div>
-              {player.skipNextTurn && (
-                <div className="text-xs text-red-500 font-bold">Skip Next Turn</div>
-              )}
-            </div>
-          ))}
-        </div>
+            </motion.button>
+          </motion.div>
 
-        {gameState.waitingForNextPlayer && (
-          <div className="mt-4 p-3 bg-yellow-100 border border-yellow-300 rounded-lg text-center">
-            <div className="font-bold text-yellow-800">
-              {gameState.players[gameState.waitingForNextPlayer.playerId].name} is waiting to{' '}
-              {gameState.waitingForNextPlayer.type === 'steal' ? 'steal' : 'copy'} the next roll!
-            </div>
-          </div>
-        )}
+          {/* Player Status Cards */}
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {gameState.players.map((player, index) => (
+              <motion.div
+                key={player.id}
+                className={`p-4 rounded-2xl border-4 shadow-lg transition-all ${
+                  player.id === gameState.currentPlayerIndex 
+                    ? 'border-yellow-400 bg-gradient-to-br from-yellow-100 to-orange-100 scale-105' 
+                    : 'border-white bg-gradient-to-br from-purple-50 to-pink-50'
+                }`}
+                initial={{ scale: 0, rotate: 10 }}
+                animate={{ 
+                  scale: 1, 
+                  rotate: 0,
+                  y: player.id === gameState.currentPlayerIndex ? [0, -5, 0] : 0
+                }}
+                transition={{ 
+                  scale: { delay: index * 0.1, type: "spring", stiffness: 200 },
+                  y: { duration: 2, repeat: Infinity }
+                }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-12 h-12 rounded-full border-4 border-white shadow-lg ${player.color} flex items-center justify-center`}>
+                    {player.character !== undefined ? (
+                      <img
+                        src={monsterSpriteUrls[player.character]}
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <span className="text-white font-bold">{player.name[0]}</span>
+                    )}
+                  </div>
+                  <span className="font-black text-lg text-purple-700">{player.name}</span>
+                  {player.id === gameState.currentPlayerIndex && (
+                    <span className="text-2xl animate-bounce">👑</span>
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-purple-600 text-lg">
+                    📍 Square {gameState.playerPositions[player.id]}
+                  </div>
+                  {player.skipNextTurn && (
+                    <motion.div 
+                      className="text-red-500 font-black text-sm bg-red-100 rounded-full px-3 py-1 mt-2"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      ⏸️ Skip Next Turn
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Special Waiting Status */}
+          {gameState.waitingForNextPlayer && (
+            <motion.div 
+              className="mt-6 p-6 bg-gradient-to-r from-yellow-300 to-orange-400 border-4 border-white rounded-2xl text-center shadow-xl"
+              initial={{ scale: 0, rotate: 5 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <div className="font-black text-2xl text-white drop-shadow-lg">
+                ⚡ {gameState.players[gameState.waitingForNextPlayer.playerId].name} is waiting to{' '}
+                {gameState.waitingForNextPlayer.type === 'steal' ? '🏴‍☠️ steal' : '🪞 copy'} the next roll! ⚡
+              </div>
+            </motion.div>
+          )}
+        </div>
       </div>
       
       {/* Tutorial Component */}
