@@ -6,10 +6,23 @@ import { boardBgUrl, monsterSpriteUrls } from './constants';
 
 const GameBoard = ({ players, playerPositions, specialSquares, animatingSquare }) => {
   return (
-    <div 
-      className="relative w-full max-w-4xl mx-auto aspect-video bg-cover bg-center rounded-2xl shadow-2xl border-8 border-white overflow-hidden"
-      style={{ backgroundImage: `url(${boardBgUrl})` }}
-    >
+    <div className="w-full max-w-4xl mx-auto">
+      <div 
+        className="relative w-full bg-gradient-to-br from-green-100 to-blue-100 bg-cover bg-center rounded-2xl shadow-2xl border-8 border-white overflow-hidden"
+        style={{ 
+          backgroundImage: `url(${boardBgUrl})`,
+          aspectRatio: '16/9' // Modern CSS aspect ratio
+        }}
+      >
+      {/* Grid lines for debugging - remove these in production */}
+      {/* Horizontal lines */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute w-full h-px bg-gray-500" style={{ top: '17%' }}></div>
+        <div className="absolute w-full h-px bg-gray-500" style={{ top: '37%' }}></div>
+        <div className="absolute w-full h-px bg-gray-500" style={{ top: '57%' }}></div>
+        <div className="absolute w-full h-px bg-gray-500" style={{ top: '77%' }}></div>
+      </div>
+      
       {/* Render the squares */}
       {boardLayout.slice(1).map((pos, index) => {
         const squareNum = index + 1;
@@ -51,10 +64,12 @@ const GameBoard = ({ players, playerPositions, specialSquares, animatingSquare }
               })
             }}
           >
-            {squareNum === 50 ? '🏆' : squareNum}
+            <span className="text-sm font-bold">
+              {squareNum === 50 ? '🏆' : squareNum}
+            </span>
             {special && (
               <motion.div 
-                className="absolute -top-2 -right-2 text-2xl"
+                className="absolute -top-2 -right-2 text-lg"
                 animate={isAnimating ? {
                   scale: [1, 1.5, 1],
                   rotate: [0, 360]
@@ -146,6 +161,7 @@ const GameBoard = ({ players, playerPositions, specialSquares, animatingSquare }
           </motion.div>
         );
       })}
+      </div>
     </div>
   );
 };
