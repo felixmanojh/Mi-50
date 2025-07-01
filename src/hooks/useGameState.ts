@@ -78,6 +78,75 @@ export const useGameState = () => {
     }));
   };
 
+  const handleCharacterSelect = (characterIndex: number) => {
+    const currentPlayerIndex = gameState.players.length;
+    const playerColors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500'];
+    const playerNames = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+    
+    const newPlayer: Player = {
+      id: currentPlayerIndex,
+      name: playerNames[currentPlayerIndex],
+      color: playerColors[currentPlayerIndex],
+      character: characterIndex,
+      skipNextTurn: false
+    };
+
+    const updatedPlayers = [...gameState.players, newPlayer];
+    const updatedSelectedCharacters = [...gameState.selectedCharacters, characterIndex];
+
+    if (updatedPlayers.length === gameState.numPlayers) {
+      // All players selected, start game
+      startGameplay(updatedPlayers);
+    } else {
+      // Next player selects
+      setGameState({
+        ...gameState,
+        players: updatedPlayers,
+        selectedCharacters: updatedSelectedCharacters,
+        notification: { 
+          message: `🎮 ${playerNames[updatedPlayers.length]}, choose your monster! 👾`, 
+          type: 'info' 
+        }
+      });
+    }
+  };
+
+  const rollDice = (setIsRolling: (value: boolean) => void, triggerConfetti: () => void, playSound: (sound: string) => void) => {
+    // This will be implemented with GameEngine logic
+    setIsRolling(true);
+    const roll = GameEngine.rollDice();
+    
+    setGameState(prev => ({
+      ...prev,
+      lastRoll: roll
+    }));
+    
+    setTimeout(() => {
+      setIsRolling(false);
+      // Additional game logic would go here
+    }, 1000);
+  };
+
+  const useStars = (playSound: (sound: string) => void) => {
+    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+    const powerUps = gameState.playerPowerUps[currentPlayer.id];
+    
+    if (powerUps && powerUps.stars >= 3) {
+      setGameState(prev => ({
+        ...prev,
+        playerPowerUps: {
+          ...prev.playerPowerUps,
+          [currentPlayer.id]: {
+            ...prev.playerPowerUps[currentPlayer.id],
+            stars: prev.playerPowerUps[currentPlayer.id].stars - 3
+          }
+        }
+      }));
+      
+      showNotification(`⭐ ${currentPlayer.name} used 3 stars for an extra roll!`, 'success');
+    }
+  };
+
   return {
     gameState,
     setGameState,
@@ -87,6 +156,9 @@ export const useGameState = () => {
     addPlayer,
     startGameplay,
     nextTurn,
-    showNotification
+    showNotification,
+    handleCharacterSelect,
+    rollDice,
+    useStars
   };
 };

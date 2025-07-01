@@ -30,7 +30,7 @@ const Mi50Game = () => {
   const { playPreloadedSound, isLoading } = useAudioPreloader();
   
   // Use modularized hooks for game functionality
-  const gameState = useGameState();
+  const { gameState, setupGame, resetGame, showNotification, handleCharacterSelect, rollDice, useStars } = useGameState();
   const { isMuted, playSound, toggleMute } = useGameAudio(playPreloadedSound);
   const { showConfetti, isRolling, specialAnimation, animatingSquare, triggerConfetti, setIsRolling, setSpecialAnimation, setAnimatingSquare } = useGameAnimations();
   const { showTutorial, setShowTutorial, triviaHandlers } = useTrivia(gameState, playSound);
@@ -52,7 +52,7 @@ const Mi50Game = () => {
       {/* Phase-based rendering */}
       {gameState.gamePhase === 'setup' && (
         <SetupScreen 
-          onSetupGame={gameState.setupGame}
+          onSetupGame={setupGame}
           playSound={playSound}
           audioUrls={audioUrls}
         />
@@ -61,7 +61,7 @@ const Mi50Game = () => {
       {gameState.gamePhase === 'characterSelection' && (
         <CharacterSelection
           gameState={gameState}
-          onCharacterSelect={gameState.handleCharacterSelect}
+          onCharacterSelect={handleCharacterSelect}
           playSound={playSound}
           audioUrls={audioUrls}
           playerNames={['Player 1', 'Player 2', 'Player 3', 'Player 4']}
@@ -76,8 +76,8 @@ const Mi50Game = () => {
             currentPlayer={currentPlayer}
             gameState={gameState}
             isRolling={isRolling}
-            onRoll={() => gameState.rollDice(setIsRolling, triggerConfetti, playSound)}
-            onUseStars={() => gameState.useStars(playSound)}
+            onRoll={() => rollDice(setIsRolling, triggerConfetti, playSound)}
+            onUseStars={() => useStars(playSound)}
           />
           
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
@@ -117,11 +117,14 @@ const Mi50Game = () => {
         />
       )}
 
-      {gameState.gamePhase === 'ended' && gameState.winner && (
+      {gameState.gamePhase === 'ended' && gameState.winner !== null && (
         <VictoryScreen
-          winner={gameState.winner}
+          winner={gameState.players.find(p => p.id === gameState.winner)!}
           players={gameState.players}
-          onPlayAgain={() => gameState.resetGame(triggerConfetti)}
+          onPlayAgain={() => {
+            resetGame();
+            triggerConfetti();
+          }}
           playSound={playSound}
           audioUrls={audioUrls}
         />
