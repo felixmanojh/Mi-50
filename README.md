@@ -55,9 +55,17 @@ src/
 ### Objective
 Be the first player to reach square 50!
 
+### Board Layout
+The game board consists of **5 rows of 10 squares each** (total 50 squares + start):
+- **Row 1**: Squares 1-10 (left to right)
+- **Row 2**: Squares 11-20 (right to left - snake pattern)
+- **Row 3**: Squares 21-30 (left to right)
+- **Row 4**: Squares 31-40 (right to left)
+- **Row 5**: Squares 41-50 (left to right)
+
 ### Basic Gameplay
 1. **Setup**: Choose 2-4 players and select monster characters
-2. **Turns**: Roll dice to move around the board
+2. **Turns**: Roll dice to move around the board following the snake pattern
 3. **Special Squares**: Land on colored squares for special effects
 4. **Math Challenges**: Answer trivia questions to avoid penalties
 5. **Power-ups**: Collect stars, speed boosts, and shields

@@ -143,9 +143,15 @@ Mi50Game (orchestrator - 157 lines)
 
 The game uses a dynamic winding path layout:
 - **File**: `src/boardLayout.ts` - Defines percentage-based positioning
-- **Pattern**: Snake-like path alternating direction each row
+- **Structure**: 5 rows of 10 squares each (total 50 squares + start position)
+  - Row 1: Squares 1-10 (left to right)
+  - Row 2: Squares 11-20 (right to left - snake pattern)
+  - Row 3: Squares 21-30 (left to right)
+  - Row 4: Squares 31-40 (right to left)
+  - Row 5: Squares 41-50 (left to right)
+- **Pattern**: Snake/winding path alternating direction each row
 - **Visualization**: `src/GameBoard.tsx` handles rendering and player positioning
-- **Background**: Custom board image with 50 squares plus start position
+- **Background**: Custom board image with 50 numbered squares plus start position
 
 ### Asset Organization
 
