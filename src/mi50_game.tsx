@@ -1,7 +1,7 @@
 import React from 'react';
 import Confetti from 'react-confetti';
 import { useAudioPreloader, AudioLoadingScreen } from './AudioPreloader';
-import GameBoard from './GameBoard';
+import GameBoardSimple from './GameBoardSimple';
 import Tutorial from './Tutorial';
 
 // Import modularized components and hooks
@@ -83,7 +83,7 @@ const Mi50Game = () => {
           
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
             <div className="xl:col-span-3">
-              <GameBoard
+              <GameBoardSimple
                 players={gameState.players}
                 playerPositions={gameState.playerPositions}
                 specialSquares={specialSquares}
