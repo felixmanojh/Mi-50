@@ -112,19 +112,74 @@ export const useGameState = () => {
   };
 
   const rollDice = (setIsRolling: (value: boolean) => void, triggerConfetti: () => void, playSound: (sound: string) => void) => {
-    // This will be implemented with GameEngine logic
-    setIsRolling(true);
-    const roll = GameEngine.rollDice();
-    
-    setGameState(prev => ({
-      ...prev,
-      lastRoll: roll
-    }));
-    
-    setTimeout(() => {
-      setIsRolling(false);
-      // Additional game logic would go here
-    }, 1000);
+    setGameState(prev => {
+      if (prev.gamePhase !== 'playing') return prev;
+      
+      setIsRolling(true);
+      playSound('/assets/audio/dice_roll.mp3');
+      
+      // Animate dice for 1 second before showing result
+      const roll = GameEngine.rollDice();
+      
+      setTimeout(() => {
+        setGameState(current => {
+          const currentPlayer = current.players[current.currentPlayerIndex];
+          const currentPos = current.playerPositions[currentPlayer.id];
+          const newPos = GameEngine.movePlayer(currentPlayer.id, currentPos + roll);
+          
+          if (newPos === -1) {
+            // Illegal move (would go past 50)
+            setIsRolling(false);
+            return {
+              ...current,
+              lastRoll: roll,
+              notification: { 
+                message: `🚫 ${currentPlayer.name} rolled ${roll} but that's too far! Stay at ${currentPos}!`, 
+                type: 'warning' 
+              }
+            };
+          } else {
+            // Valid move
+            playSound('/assets/audio/player_move.mp3');
+            
+            // Check for win
+            if (newPos === 50) {
+              playSound('/assets/audio/victory.mp3');
+              triggerConfetti();
+              setIsRolling(false);
+              return {
+                ...current,
+                lastRoll: roll,
+                playerPositions: { ...current.playerPositions, [currentPlayer.id]: newPos },
+                gamePhase: 'ended',
+                winner: currentPlayer.id,
+                notification: { 
+                  message: `🏆 ${currentPlayer.name} WINS!`, 
+                  type: 'success' 
+                }
+              };
+            }
+            
+            // Regular move - set up next turn
+            const nextPlayerIndex = (current.currentPlayerIndex + 1) % current.players.length;
+            setIsRolling(false);
+            
+            return {
+              ...current,
+              lastRoll: roll,
+              playerPositions: { ...current.playerPositions, [currentPlayer.id]: newPos },
+              currentPlayerIndex: nextPlayerIndex,
+              notification: { 
+                message: `🎲 ${currentPlayer.name} rolled ${roll}! Now ${current.players[nextPlayerIndex].name}'s turn!`, 
+                type: 'info' 
+              }
+            };
+          }
+        });
+      }, 1000);
+      
+      return prev; // Return unchanged state initially
+    });
   };
 
   const useStars = (playSound: (sound: string) => void) => {

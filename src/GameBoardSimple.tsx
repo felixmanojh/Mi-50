@@ -47,9 +47,11 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
       <div 
         className="grid gap-1 bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-2xl shadow-2xl border-4 border-white"
         style={{
+          display: 'grid',
           gridTemplateColumns: 'repeat(10, 1fr)',
           gridTemplateRows: 'repeat(5, 1fr)',
-          aspectRatio: '2/1'
+          width: '100%',
+          height: '400px' // Fixed height to ensure proper layout
         }}
       >
         {/* Render squares in snake pattern */}
