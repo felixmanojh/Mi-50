@@ -52,7 +52,8 @@ const Mi50Game = () => {
       {/* Phase-based rendering */}
       {gameState.gamePhase === 'setup' && (
         <SetupScreen 
-          onSetupGame={setupGame}
+          onStartGame={setupGame}
+          onShowTutorial={() => setShowTutorial(true)}
           playSound={playSound}
           audioUrls={audioUrls}
         />
