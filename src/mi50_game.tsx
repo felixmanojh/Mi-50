@@ -88,6 +88,7 @@ const Mi50Game = () => {
                 playerPositions={gameState.playerPositions}
                 specialSquares={specialSquares}
                 animatingSquare={animatingSquare}
+                currentPlayerIndex={gameState.currentPlayerIndex}
               />
             </div>
             
