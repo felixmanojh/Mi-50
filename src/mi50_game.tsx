@@ -70,9 +70,9 @@ const Mi50Game = () => {
       )}
 
       {gameState.gamePhase === 'playing' && (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <NotificationBanner notification={gameState.notification} />
-          
+
           <GameControls
             currentPlayer={currentPlayer}
             gameState={gameState}
@@ -80,9 +80,9 @@ const Mi50Game = () => {
             onRoll={() => rollDice(setIsRolling, triggerConfetti, playSound, playerDifficulty)}
             onUseStars={() => useStars(playSound)}
           />
-          
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-            <div className="xl:col-span-3">
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+            <div className="lg:col-span-3 order-2 lg:order-1">
               <GameBoardSimple
                 players={gameState.players}
                 playerPositions={gameState.playerPositions}
@@ -91,13 +91,13 @@ const Mi50Game = () => {
                 currentPlayerIndex={gameState.currentPlayerIndex}
               />
             </div>
-            
-            <div className="xl:col-span-1">
+
+            <div className="lg:col-span-1 order-1 lg:order-2">
               <PlayerStatusCards gameState={gameState} />
-              
+
               {gameState.waitingForNextPlayer && (
-                <div className="mt-6 p-6 bg-gradient-to-r from-yellow-300 to-orange-400 border-4 border-white rounded-2xl text-center shadow-xl">
-                  <div className="font-black text-2xl text-white drop-shadow-lg">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-6 bg-gradient-to-r from-yellow-300 to-orange-400 border-2 sm:border-4 border-white rounded-xl sm:rounded-2xl text-center shadow-xl">
+                  <div className="font-black text-base sm:text-xl lg:text-2xl text-white drop-shadow-lg">
                     ⚡ {gameState.players[gameState.waitingForNextPlayer.playerId].name} is waiting to{' '}
                     {gameState.waitingForNextPlayer.type === 'steal' ? '🏴‍☠️ steal' : '🪞 copy'} the next roll! ⚡
                   </div>

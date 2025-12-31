@@ -63,15 +63,15 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4">
+    <div className="w-full max-w-7xl mx-auto p-2 sm:p-4">
       <div
-        className="grid gap-2 bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-3xl shadow-2xl border-4 border-white"
+        className="grid gap-1 sm:gap-2 bg-gradient-to-br from-blue-50 to-purple-50 p-3 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl border-2 sm:border-4 border-white"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(10, 1fr)',
           gridTemplateRows: 'repeat(5, 1fr)',
           width: '100%',
-          height: '600px' // Increased from 400px for better visibility
+          height: 'min(calc(100vh - 450px), 600px)' // Responsive: smaller on mobile, max 600px on desktop
         }}
       >
         {/* Render squares in snake pattern */}
@@ -86,11 +86,12 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
             <motion.div
               key={squareNumber}
               className={`
-                relative border-3 rounded-xl flex items-center justify-center
-                text-lg font-bold min-h-[70px] overflow-visible group cursor-help
+                relative rounded-lg sm:rounded-xl flex items-center justify-center
+                text-sm sm:text-lg font-bold min-h-[50px] sm:min-h-[70px] overflow-visible group cursor-help
+                border-2 sm:border-3
                 ${squareColor}
                 ${isAnimating ? 'z-50' : ''}
-                ${isCurrentPlayerHere ? 'border-4 border-indigo-500 ring-4 ring-indigo-300' : 'border-gray-400'}
+                ${isCurrentPlayerHere ? 'border-2 sm:border-4 border-indigo-500 ring-2 sm:ring-4 ring-indigo-300' : 'border-gray-400'}
               `}
               animate={isAnimating ? {
                 scale: [1, 1.15, 1],
@@ -110,20 +111,20 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
             >
               {/* Square number and special icon */}
               <div className="flex flex-col items-center text-center">
-                <span className="text-base font-black text-gray-800">
+                <span className="text-xs sm:text-base font-black text-gray-800">
                   {squareNumber === 50 ? '🏆' : squareNumber}
                 </span>
                 {special && (
-                  <span className="text-lg mt-1">{special.icon}</span>
+                  <span className="text-sm sm:text-lg mt-0.5 sm:mt-1">{special.icon}</span>
                 )}
               </div>
 
-              {/* Tooltip on hover */}
+              {/* Tooltip on hover/tap - adjusted for mobile */}
               {special && (
-                <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-2 rounded-lg text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                <div className="absolute -top-12 sm:-top-16 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-[10px] sm:text-xs font-bold opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-xl max-w-[150px] sm:max-w-none">
                   <div className="text-center">
-                    <div className="text-sm mb-1">{special.icon} {special.text}</div>
-                    <div className="text-xs text-gray-300">Square {squareNumber}</div>
+                    <div className="text-xs sm:text-sm mb-0.5 sm:mb-1">{special.icon} {special.text}</div>
+                    <div className="text-[9px] sm:text-xs text-gray-300">Square {squareNumber}</div>
                   </div>
                   {/* Tooltip arrow */}
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
@@ -159,11 +160,11 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
                       <img
                         src={monsterSpriteUrls[player.character]}
                         alt={player.name}
-                        className="w-8 h-8 rounded-full border-2 border-white shadow-lg"
+                        className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-lg"
                       />
-                      
-                      {/* Player name tooltip */}
-                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-1 py-0.5 rounded text-xs font-bold opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+
+                      {/* Player name tooltip - hidden on mobile, shown on desktop */}
+                      <div className="hidden sm:block absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-1 py-0.5 rounded text-xs font-bold opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                         {player.name}
                       </div>
                     </div>
@@ -198,9 +199,9 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
       </div>
       
       {/* Start position indicator */}
-      <div className="mt-6 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-200 to-emerald-300 border-4 border-green-400 rounded-full shadow-lg">
-          <span className="text-base font-black text-green-800">START</span>
+      <div className="mt-3 sm:mt-6 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-200 to-emerald-300 border-2 sm:border-4 border-green-400 rounded-full shadow-lg">
+          <span className="text-xs sm:text-base font-black text-green-800">START</span>
         </div>
 
         {/* Show players on start position */}
@@ -214,56 +215,56 @@ const GameBoardSimple = ({ players, playerPositions, specialSquares, animatingSq
             <img
               src={monsterSpriteUrls[player.character]}
               alt={player.name}
-              className="w-10 h-10 rounded-full border-2 border-white shadow-lg"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-lg"
             />
           </motion.div>
         ))}
       </div>
 
-      {/* Board Legend */}
+      {/* Board Legend - responsive grid */}
       <motion.div
-        className="mt-6 bg-white rounded-2xl p-4 shadow-lg border-2 border-gray-200"
+        className="mt-4 sm:mt-6 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border-2 border-gray-200"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="text-center font-black text-gray-700 mb-3">🎮 Square Types</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-green-100 to-emerald-200 border-2 border-green-400"></div>
-            <span className="font-bold text-gray-700">⭐💨🛡️ Power-ups</span>
+        <div className="text-center font-black text-gray-700 mb-2 sm:mb-3 text-sm sm:text-base">🎮 Square Types</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 text-[10px] sm:text-xs">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-green-100 to-emerald-200 border-2 border-green-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">⭐💨🛡️ Power-ups</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-100 to-cyan-200 border-2 border-blue-400"></div>
-            <span className="font-bold text-gray-700">🎲 Roll Again</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-blue-100 to-cyan-200 border-2 border-blue-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">🎲 Roll Again</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-red-100 to-pink-200 border-2 border-red-400"></div>
-            <span className="font-bold text-gray-700">⏭️ Skip Turn</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-red-100 to-pink-200 border-2 border-red-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">⏭️ Skip Turn</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-purple-100 to-violet-200 border-2 border-purple-400"></div>
-            <span className="font-bold text-gray-700">🌀 Teleport</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-purple-100 to-violet-200 border-2 border-purple-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">🌀 Teleport</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-orange-100 to-amber-200 border-2 border-orange-400"></div>
-            <span className="font-bold text-gray-700">🧠 Trivia</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-orange-100 to-amber-200 border-2 border-orange-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">🧠 Trivia</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-gradient-to-br from-yellow-100 to-amber-200 border-2 border-yellow-400"></div>
-            <span className="font-bold text-gray-700">🏴‍☠️ Special</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-gradient-to-br from-yellow-100 to-amber-200 border-2 border-yellow-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">🏴‍☠️ Special</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-white border-2 border-gray-400"></div>
-            <span className="font-bold text-gray-700">Normal</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded bg-white border-2 border-gray-400 flex-shrink-0"></div>
+            <span className="font-bold text-gray-700 truncate">Normal</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded border-4 border-indigo-500 ring-2 ring-indigo-300"></div>
-            <span className="font-bold text-indigo-700">Current Player</span>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="w-4 h-4 sm:w-6 sm:h-6 rounded border-2 sm:border-4 border-indigo-500 ring-1 sm:ring-2 ring-indigo-300 flex-shrink-0"></div>
+            <span className="font-bold text-indigo-700 truncate">Current</span>
           </div>
         </div>
-        <div className="mt-3 text-center text-xs text-gray-600 italic">
-          💡 Hover over colored squares to see what they do!
+        <div className="mt-2 sm:mt-3 text-center text-[9px] sm:text-xs text-gray-600 italic">
+          💡 <span className="hidden sm:inline">Hover over</span><span className="sm:hidden">Tap</span> colored squares to see what they do!
         </div>
       </motion.div>
     </div>
