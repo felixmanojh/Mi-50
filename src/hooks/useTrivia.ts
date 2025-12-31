@@ -62,6 +62,10 @@ export const useTrivia = () => {
     };
   };
 
+  const triviaHandlers = {
+    handleTriviaAnswer
+  };
+
   return {
     showTutorial,
     setShowTutorial,
@@ -70,7 +74,7 @@ export const useTrivia = () => {
     adjustDifficultyOnAnswer,
     generateQuestion,
     generateThemedQuestion,
-    handleTriviaAnswer,
+    triviaHandlers,
     mathGenerator
   };
 };

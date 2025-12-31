@@ -111,81 +111,150 @@ export const useGameState = () => {
     }
   };
 
-  const rollDice = (setIsRolling: (value: boolean) => void, triggerConfetti: () => void, playSound: (sound: string) => void) => {
+  const rollDice = (
+    setIsRolling: (value: boolean) => void,
+    triggerConfetti: () => void,
+    playSound: (sound: string) => void,
+    playerDifficulty: { [playerId: number]: 'easy' | 'medium' | 'hard' } = {}
+  ) => {
     setGameState(prev => {
       if (prev.gamePhase !== 'playing') return prev;
-      
+
       setIsRolling(true);
       playSound('/assets/audio/dice_roll.mp3');
-      
+
       // Animate dice for 1 second before showing result
       const roll = GameEngine.rollDice();
-      
+
       setTimeout(() => {
         setGameState(current => {
           const currentPlayer = current.players[current.currentPlayerIndex];
           const currentPos = current.playerPositions[currentPlayer.id];
-          const newPos = GameEngine.movePlayer(currentPlayer.id, currentPos + roll);
-          
-          if (newPos === -1) {
-            // Illegal move (would go past 50)
-            setIsRolling(false);
-            return {
-              ...current,
-              lastRoll: roll,
-              notification: { 
-                message: `🚫 ${currentPlayer.name} rolled ${roll} but that's too far! Stay at ${currentPos}!`, 
-                type: 'warning' 
-              }
-            };
-          } else {
-            // Valid move
-            playSound('/assets/audio/player_move.mp3');
-            
-            // Check for win
-            if (newPos === 50) {
-              playSound('/assets/audio/victory.mp3');
-              triggerConfetti();
-              setIsRolling(false);
-              return {
-                ...current,
-                lastRoll: roll,
-                playerPositions: { ...current.playerPositions, [currentPlayer.id]: newPos },
-                gamePhase: 'ended',
-                winner: currentPlayer.id,
-                notification: { 
-                  message: `🏆 ${currentPlayer.name} WINS!`, 
-                  type: 'success' 
-                }
-              };
-            }
-            
-            // Regular move - set up next turn
+
+          // Check skip turn
+          if (currentPlayer.skipNextTurn) {
+            currentPlayer.skipNextTurn = false;
             const nextPlayerIndex = (current.currentPlayerIndex + 1) % current.players.length;
             setIsRolling(false);
-            
             return {
               ...current,
-              lastRoll: roll,
-              playerPositions: { ...current.playerPositions, [currentPlayer.id]: newPos },
               currentPlayerIndex: nextPlayerIndex,
-              notification: { 
-                message: `🎲 ${currentPlayer.name} rolled ${roll}! Now ${current.players[nextPlayerIndex].name}'s turn!`, 
-                type: 'info' 
+              notification: {
+                message: `⏸️ ${currentPlayer.name} skipped their turn!`,
+                type: 'warning'
               }
             };
           }
+
+          // Process move with speed boost
+          let stateAfterMove = GameEngine.processPlayerMove(current, roll);
+          setIsRolling(false);
+
+          // Check if move was illegal
+          if (stateAfterMove.playerPositions[currentPlayer.id] === currentPos &&
+              stateAfterMove.notification?.type === 'warning') {
+            return stateAfterMove;
+          }
+
+          const newPos = stateAfterMove.playerPositions[currentPlayer.id];
+          playSound('/assets/audio/player_move.mp3');
+
+          // Check for win
+          if (newPos === 50) {
+            playSound('/assets/audio/victory.mp3');
+            triggerConfetti();
+            return {
+              ...stateAfterMove,
+              gamePhase: 'ended',
+              winner: currentPlayer.id,
+              notification: {
+                message: `🏆 ${currentPlayer.name} WINS!`,
+                type: 'success'
+              }
+            };
+          }
+
+          // Process special square effects
+          let stateAfterSpecial = GameEngine.processSpecialSquare(
+            stateAfterMove,
+            newPos,
+            currentPlayer.id,
+            playerDifficulty
+          );
+
+          // Play special square sound if landed on one
+          const special = require('../game-logic/SpecialSquares').specialSquares[newPos];
+          if (special) {
+            playSound('/assets/audio/special_square.mp3');
+          }
+
+          // Check if player gets to roll again
+          const rollAgain = special?.type === 'roll_again';
+
+          // If not rolling again, advance to next player
+          if (!rollAgain && stateAfterSpecial.gamePhase !== 'trivia') {
+            const nextPlayerIndex = (current.currentPlayerIndex + 1) % current.players.length;
+            stateAfterSpecial = {
+              ...stateAfterSpecial,
+              currentPlayerIndex: nextPlayerIndex
+            };
+          }
+
+          return stateAfterSpecial;
         });
       }, 1000);
-      
+
       return prev; // Return unchanged state initially
+    });
+  };
+
+  const handleTriviaAnswer = (answer: string, playSound: (sound: string) => void) => {
+    setGameState(prev => {
+      const isCorrect = parseInt(answer) === prev.triviaQuestion!.answer;
+      const triviaPlayer = prev.players[prev.triviaPlayer!];
+
+      if (isCorrect) {
+        playSound('/assets/audio/correct_answer.mp3');
+
+        // Return to playing phase with success message
+        const nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
+        return {
+          ...prev,
+          gamePhase: 'playing',
+          triviaQuestion: null,
+          triviaPlayer: null,
+          currentPlayerIndex: nextPlayerIndex,
+          notification: {
+            message: `🎉 Correct! ${triviaPlayer.name} answered correctly!`,
+            type: 'success'
+          }
+        };
+      } else {
+        playSound('/assets/audio/wrong_answer.mp3');
+
+        // Set skip turn for wrong answer
+        triviaPlayer.skipNextTurn = true;
+        const nextPlayerIndex = (prev.currentPlayerIndex + 1) % prev.players.length;
+
+        return {
+          ...prev,
+          gamePhase: 'playing',
+          triviaQuestion: null,
+          triviaPlayer: null,
+          currentPlayerIndex: nextPlayerIndex,
+          notification: {
+            message: `❌ Wrong answer! ${triviaPlayer.name} will skip their next turn!`,
+            type: 'error'
+          }
+        };
+      }
     });
   };
 
   const useStars = (playSound: (sound: string) => void) => {
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
     const powerUps = gameState.playerPowerUps[currentPlayer.id];
-    
+
     if (powerUps && powerUps.stars >= 3) {
       setGameState(prev => ({
         ...prev,
@@ -197,7 +266,7 @@ export const useGameState = () => {
           }
         }
       }));
-      
+
       showNotification(`⭐ ${currentPlayer.name} used 3 stars for an extra roll!`, 'success');
     }
   };
@@ -214,6 +283,7 @@ export const useGameState = () => {
     showNotification,
     handleCharacterSelect,
     rollDice,
-    useStars
+    useStars,
+    handleTriviaAnswer
   };
 };

@@ -30,10 +30,10 @@ const Mi50Game = () => {
   const { playPreloadedSound, isLoading } = useAudioPreloader();
   
   // Use modularized hooks for game functionality
-  const { gameState, setupGame, resetGame, showNotification, handleCharacterSelect, rollDice, useStars } = useGameState();
+  const { gameState, setupGame, resetGame, showNotification, handleCharacterSelect, rollDice, useStars, handleTriviaAnswer } = useGameState();
   const { isMuted, playSound, toggleMute } = useGameAudio(playPreloadedSound);
   const { showConfetti, isRolling, specialAnimation, animatingSquare, triggerConfetti, setIsRolling, setSpecialAnimation, setAnimatingSquare } = useGameAnimations();
-  const { showTutorial, setShowTutorial, triviaHandlers } = useTrivia(gameState, playSound);
+  const { showTutorial, setShowTutorial, playerDifficulty } = useTrivia(gameState, playSound);
   
   // Get current player
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -77,7 +77,7 @@ const Mi50Game = () => {
             currentPlayer={currentPlayer}
             gameState={gameState}
             isRolling={isRolling}
-            onRoll={() => rollDice(setIsRolling, triggerConfetti, playSound)}
+            onRoll={() => rollDice(setIsRolling, triggerConfetti, playSound, playerDifficulty)}
             onUseStars={() => useStars(playSound)}
           />
           
@@ -109,10 +109,8 @@ const Mi50Game = () => {
 
       {gameState.gamePhase === 'trivia' && (
         <TriviaScreen
-          triviaQuestion={gameState.triviaQuestion}
-          triviaPlayer={gameState.triviaPlayer}
-          players={gameState.players}
-          onAnswerTrivia={triviaHandlers.handleTriviaAnswer}
+          gameState={gameState}
+          onAnswer={(answer) => handleTriviaAnswer(answer, playSound)}
           playSound={playSound}
           audioUrls={audioUrls}
         />

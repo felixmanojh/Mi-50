@@ -193,6 +193,242 @@ export class GameEngine {
     };
   }
 
+  static processSpecialSquare(
+    gameState: GameState,
+    position: number,
+    playerId: number,
+    playerDifficulty: { [playerId: number]: 'easy' | 'medium' | 'hard' }
+  ): GameState {
+    const special = specialSquares[position];
+    if (!special) return gameState;
+
+    const player = gameState.players[playerId];
+    const playerPowerUps = gameState.playerPowerUps[playerId];
+
+    // Check if player has shield and can block negative effects
+    if (PowerUpManager.canUseShield(playerPowerUps, special.type)) {
+      const updatedState = PowerUpManager.useShield(gameState, playerId);
+      return {
+        ...updatedState,
+        notification: {
+          message: `🛡️ ${player.name}'s shield blocked ${special.text}! Shield consumed!`,
+          type: 'success'
+        }
+      };
+    }
+
+    let updatedState = { ...gameState };
+
+    switch (special.type) {
+      // Power-ups
+      case 'power_up_star':
+        updatedState = PowerUpManager.collectStar(updatedState, playerId);
+        updatedState.notification = {
+          message: `⭐ ${player.name} collected a star! (${updatedState.playerPowerUps[playerId].stars}/3)`,
+          type: 'success'
+        };
+        break;
+
+      case 'power_up_speed':
+        updatedState = PowerUpManager.grantSpeedBoost(updatedState, playerId);
+        updatedState.notification = {
+          message: `💨 ${player.name} got a speed boost! Next roll +2 movement!`,
+          type: 'special'
+        };
+        break;
+
+      case 'power_up_shield':
+        updatedState = PowerUpManager.grantShield(updatedState, playerId);
+        updatedState.notification = {
+          message: `🛡️ ${player.name} got a shield! Blocks next negative effect!`,
+          type: 'special'
+        };
+        break;
+
+      // Roll again squares
+      case 'roll_again':
+        updatedState.notification = {
+          message: `🎲 Lucky! ${player.name} gets to roll again!`,
+          type: 'success'
+        };
+        // Don't advance turn - player rolls again
+        break;
+
+      // Skip/lose turn
+      case 'skip_turn':
+      case 'lose_turn':
+        player.skipNextTurn = true;
+        updatedState.notification = {
+          message: `⏭️ Oh no! ${player.name} will skip their next turn!`,
+          type: 'warning'
+        };
+        break;
+
+      // Teleport squares
+      case 'go_to_start':
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: 0
+        };
+        updatedState.notification = {
+          message: `↩️ ${player.name} goes back to START! 😱`,
+          type: 'error'
+        };
+        break;
+
+      case 'go_to_13':
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: 13
+        };
+        updatedState.notification = {
+          message: `🌀 ${player.name} teleported to square 13!`,
+          type: 'special'
+        };
+        break;
+
+      case 'go_to_27':
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: 27
+        };
+        updatedState.notification = {
+          message: `🌀 ${player.name} teleported to square 27!`,
+          type: 'special'
+        };
+        break;
+
+      // Movement modifiers
+      case 'move_front_4':
+        const newPosFront4 = Math.min(updatedState.playerPositions[playerId] + 4, 50);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: newPosFront4
+        };
+        updatedState.notification = {
+          message: `➡️ Bonus move! ${player.name} jumps forward 4 squares!`,
+          type: 'success'
+        };
+        break;
+
+      case 'move_back_4':
+        const newPosBack4 = Math.max(updatedState.playerPositions[playerId] - 4, 0);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: newPosBack4
+        };
+        updatedState.notification = {
+          message: `⬅️ ${player.name} moves back 4 squares!`,
+          type: 'warning'
+        };
+        break;
+
+      case 'move_front_5':
+        const newPosFront5 = Math.min(updatedState.playerPositions[playerId] + 5, 50);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: newPosFront5
+        };
+        updatedState.notification = {
+          message: `➡️ Super boost! ${player.name} jumps forward 5 squares!`,
+          type: 'success'
+        };
+        break;
+
+      case 'move_back_5':
+        const newPosBack5 = Math.max(updatedState.playerPositions[playerId] - 5, 0);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: newPosBack5
+        };
+        updatedState.notification = {
+          message: `⬅️ ${player.name} moves back 5 squares!`,
+          type: 'warning'
+        };
+        break;
+
+      case 'move_double':
+        const lastRoll = updatedState.lastRoll;
+        const doubleMove = Math.min(updatedState.playerPositions[playerId] + lastRoll, 50);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: doubleMove
+        };
+        updatedState.notification = {
+          message: `⚡ ${player.name} moves DOUBLE the last roll (+${lastRoll})!`,
+          type: 'special'
+        };
+        break;
+
+      case 'move_triple':
+        const tripleRoll = updatedState.lastRoll;
+        const tripleMove = Math.min(updatedState.playerPositions[playerId] + (tripleRoll * 2), 50);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: tripleMove
+        };
+        updatedState.notification = {
+          message: `⚡⚡ ${player.name} moves TRIPLE the last roll (+${tripleRoll * 2})!`,
+          type: 'special'
+        };
+        break;
+
+      case 'move_backward':
+        const backRoll = updatedState.lastRoll;
+        const moveBack = Math.max(updatedState.playerPositions[playerId] - backRoll, 0);
+        updatedState.playerPositions = {
+          ...updatedState.playerPositions,
+          [playerId]: moveBack
+        };
+        updatedState.notification = {
+          message: `⬅️ ${player.name} moves backward by last roll (-${backRoll})!`,
+          type: 'warning'
+        };
+        break;
+
+      // Interactive squares
+      case 'steal_move':
+        updatedState.waitingForNextPlayer = {
+          type: 'steal',
+          playerId: playerId
+        };
+        updatedState.notification = {
+          message: `🏴‍☠️ ${player.name} will steal the next player's roll!`,
+          type: 'special'
+        };
+        break;
+
+      case 'mirror_move':
+        updatedState.waitingForNextPlayer = {
+          type: 'mirror',
+          playerId: playerId
+        };
+        updatedState.notification = {
+          message: `🪞 ${player.name} will copy the next player's roll!`,
+          type: 'special'
+        };
+        break;
+
+      // Special rule square
+      case 'roll_4_to_move':
+        // This is handled in processPlayerMove, just notify
+        updatedState.notification = {
+          message: `🎯 ${player.name} is on the special square! Need to roll 4 to move!`,
+          type: 'info'
+        };
+        break;
+
+      // Trivia squares
+      case 'trivia':
+        return this.createTriviaChallenge(updatedState, playerId, playerDifficulty);
+
+      default:
+        break;
+    }
+
+    return updatedState;
+  }
+
   static resetGame(): GameState {
     return {
       players: [],
