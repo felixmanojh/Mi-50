@@ -170,13 +170,14 @@ test('100 seeded two-player games terminate and can replay exactly', () => {
     let random = seed;
     while (state.gamePhase !== 'ended' && steps < 5000) {
       random = (Math.imul(random, 1664525) + 1013904223) >>> 0;
-      const roll = 1 + (random % 6);
+      // Use high bits. Low LCG bits cycle predictably and distort dice rolls.
+      const roll = 1 + Math.floor((random / 4294967296) * 6);
       state = state.gamePhase === 'trivia'
         ? answerQuestion(state, '4')
         : applyRoll(state, roll, question);
       steps++;
     }
-    assert.equal(state.gamePhase, 'ended', `seed ${seed} stuck after ${steps} steps`);
+    assert.equal(state.gamePhase, 'ended', `seed ${seed} stuck after ${steps} steps; positions=${JSON.stringify(state.playerPositions)} turn=${state.currentPlayerIndex}`);
     return [state.winner, steps];
   };
   for (let seed = 1; seed <= 100; seed++) assert.deepEqual(simulate(seed), simulate(seed));
