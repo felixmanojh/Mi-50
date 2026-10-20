@@ -8,7 +8,6 @@ import Tutorial from './Tutorial';
 import { useGameState } from './hooks/useGameState';
 import { useGameAudio } from './hooks/useGameAudio';
 import { useGameAnimations } from './hooks/useGameAnimations';
-import { useTrivia } from './hooks/useTrivia';
 
 // Import UI components
 import { SetupScreen } from './components/game-phases/SetupScreen';
@@ -22,18 +21,17 @@ import { PlayerStatusCards } from './components/game-ui/PlayerStatusCards';
 import { Mascot } from './components/shared/Mascot';
 
 // Import types and data
-import { GameState } from './types/GameTypes';
 import { audioUrls } from './constants';
 import { specialSquares } from './game-logic/SpecialSquares';
 
 const Mi50Game = () => {
-  const { playPreloadedSound, isLoading } = useAudioPreloader();
+  const { isLoading } = useAudioPreloader();
   
   // Use modularized hooks for game functionality
-  const { gameState, setupGame, resetGame, showNotification, handleCharacterSelect, rollDice, useStars } = useGameState();
-  const { isMuted, playSound, toggleMute } = useGameAudio(playPreloadedSound);
+  const { gameState, setupGame, resetGame, handleCharacterSelect, rollDice, handleTriviaAnswer, useStars } = useGameState();
+  const { isMuted, playSound, toggleMute } = useGameAudio();
   const { showConfetti, isRolling, specialAnimation, animatingSquare, triggerConfetti, setIsRolling, setSpecialAnimation, setAnimatingSquare } = useGameAnimations();
-  const { showTutorial, setShowTutorial, triviaHandlers } = useTrivia(gameState, playSound);
+  const [showTutorial, setShowTutorial] = React.useState(false);
   
   // Get current player
   const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -109,10 +107,8 @@ const Mi50Game = () => {
 
       {gameState.gamePhase === 'trivia' && (
         <TriviaScreen
-          triviaQuestion={gameState.triviaQuestion}
-          triviaPlayer={gameState.triviaPlayer}
-          players={gameState.players}
-          onAnswerTrivia={triviaHandlers.handleTriviaAnswer}
+          gameState={gameState}
+          onAnswer={handleTriviaAnswer}
           playSound={playSound}
           audioUrls={audioUrls}
         />
