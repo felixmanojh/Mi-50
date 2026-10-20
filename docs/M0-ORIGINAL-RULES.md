@@ -6,7 +6,8 @@ been published in this repository.
 
 ## Physical-game identity (preserve for the mobile version)
 
-- 50 paper-numbered spaces over five serpentine rows of ten on cardboard.\n  The paper board starts at the bottom-left and reaches 50 at the top-right.
+- 50 paper-numbered spaces over five serpentine rows of ten on cardboard.
+  The paper board starts at the bottom-left and reaches 50 at the top-right.
 - Cut-paper decorations and a prominent handmade circular number spinner.
 - A race among family members, not a worksheet first.
 - The digital prototype describes a **six-sided dice**, while the photo suggests
@@ -33,7 +34,8 @@ been published in this repository.
 - Move effects 8/16 = +4, 10 = -4, 34 = -5, 35 = +5.
 - Speed on 12/30: next legal die move receives +2. Boost is retained if
   the die+boost would overshoot 50.
-- Shield on 18/37: absorbs and consumes on one negative square effect,\n  including the severe backward teleports from 40 and 47.
+- Shield on 18/37: absorbs and consumes on one negative square effect,
+  including the severe backward teleports from 40 and 47.
 - Square 21: after reaching it, advance **2 times the last die number**;
   22 advances 3 times; 23 retreats by the number.
 - Square 32: on the NEXT turn spent there, a die value of 4 is required
@@ -56,7 +58,8 @@ be tested with the creators rather than assumed to be definitive:
    echo moves.
 2. Multiple chained special-square effects resolve, not just the first.
    Example: square 8 leads to 12, where a speed power-up is awarded.
-3. A shield absorbs a penalty, including a negative teleport, but the player\n   stays on the affected square.
+3. A shield absorbs a penalty, including a negative teleport, but the player
+   stays on the affected square.
 4. Landing on 32 does not block entry; the roll-4 restriction applies on
    the next die roll from that square.
 5. Unspent stars persist; no new monetization, achievements or board themes.
