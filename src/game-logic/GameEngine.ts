@@ -207,7 +207,8 @@ export class GameEngine {
       notification: null,
       numPlayers: 0,
       selectedCharacters: [],
-      playerPowerUps: {}
+      playerPowerUps: {},
+      bonusRolls: {}
     };
   }
 }
