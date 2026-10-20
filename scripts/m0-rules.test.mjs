@@ -127,6 +127,21 @@ test('shield blocks negative landing and is consumed', () => {
   assert.equal(state.playerPositions[0], 4);
   assert.equal(state.playerPowerUps[0].shield, false);
 });
+test('shield blocks severe teleports and skipped turns', () => {
+  for (const square of [3, 40, 47]) {
+    const state = createGame(players);
+    state.playerPositions[0] = square - 1;
+    state.playerPowerUps[0].shield = true;
+    const next = applyRoll(state, 1, question);
+    assert.equal(next.playerPositions[0], square);
+    assert.equal(next.playerPowerUps[0].shield, false);
+    assert.equal(next.players[0].skipNextTurn, false);
+  }
+});
+test('square 42 loses the next scheduled turn', () => {
+  const state = land(42);
+  assert.equal(state.players[0].skipNextTurn, true);
+});
 test('square 18 and 37 award shield, 12 and 30 grant speed', () => {
   for (const square of [18, 37]) assert.equal(land(square).playerPowerUps[0].shield, true);
   for (const square of [12, 30]) assert.equal(land(square).playerPowerUps[0].speedBoost, true);
