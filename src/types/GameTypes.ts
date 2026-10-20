@@ -32,6 +32,8 @@ export interface GameState {
   numPlayers: number;
   selectedCharacters: number[];
   playerPowerUps: { [playerId: number]: PowerUps };
+  /** Earned extra rolls, including three-star redemptions. */
+  bonusRolls: { [playerId: number]: number };
 }
 
 export interface MathQuestion {
