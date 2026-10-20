@@ -13,7 +13,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "echo 'Linting disabled - build passes'",
-    "format": "prettier --write 'src/**/*.{ts,tsx,css,md}'"
+    "format": "prettier --write 'src/**/*.{ts,tsx,css,md}'",
+    "test": "node scripts/m0-rules.test.mjs",
+    "test:m0": "node scripts/m0-rules.test.mjs"
   },
   "keywords": [],
   "author": "",
