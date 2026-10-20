@@ -35,7 +35,7 @@ export const specialSquares: { [key: number]: SpecialSquare } = {
 };
 
 export const isNegativeEffect = (effectType: string): boolean => {
-  const negativeEffects = ['skip_turn', 'lose_turn', 'go_to_start', 'move_back_4', 'move_back_5', 'move_backward'];
+  const negativeEffects = ['skip_turn', 'lose_turn', 'go_to_start', 'go_to_13', 'go_to_27', 'move_back_4', 'move_back_5', 'move_backward'];
   return negativeEffects.includes(effectType);
 };
 

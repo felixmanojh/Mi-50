@@ -92,7 +92,7 @@ The game board consists of **5 rows of 10 squares each** (total 50 squares + sta
 
 #### New Special Square Effect
 1. Add effect to `src/game-logic/SpecialSquares.ts`
-2. Implement logic in `src/game-logic/GameEngine.ts`
+2. Implement the rule in `src/game-logic/TurnRules.ts` and add a deterministic replay test
 3. Update type definitions if needed
 
 #### New UI Component
@@ -102,7 +102,7 @@ The game board consists of **5 rows of 10 squares each** (total 50 squares + sta
 
 #### New Game Mechanic
 1. Extend `GameState` interface in `src/types/GameTypes.ts`
-2. Add logic to `src/game-logic/GameEngine.ts`
+2. Add logic to `src/game-logic/TurnRules.ts`
 3. Update relevant hooks in `src/hooks/`
 
 ### Code Organization
@@ -117,7 +117,7 @@ The game board consists of **5 rows of 10 squares each** (total 50 squares + sta
 
 | Change Type | Primary Files |
 |-------------|---------------|
-| Game Rules | `src/game-logic/GameEngine.ts` |
+| Game Rules | `src/game-logic/TurnRules.ts` |
 | Special Squares | `src/game-logic/SpecialSquares.ts` |
 | UI Updates | `src/components/**/*.tsx` |
 | State Changes | `src/hooks/useGameState.ts` |
@@ -136,7 +136,11 @@ Asset URLs are centralized in `src/constants.ts`.
 
 ## 🧪 Testing
 
-Currently, no test framework is configured. The project uses minimal tooling with:
+Run `npm test` for 23 rule checks and 100 deterministic seeded full-match replays. The rule tests use Node assertions and compile the TypeScript rules via the esbuild dependency already supplied by Vite.
+
+M0 CI also runs `npm run build`. See `docs/M0-ORIGINAL-RULES.md` for the original rules, photographed physical-game details and explicit provisional interpretations.
+
+The project uses minimal tooling with:
 - Vite for bundling and dev server
 - TypeScript for type checking
 - React 19 with modern hooks
@@ -158,7 +162,7 @@ Currently, no test framework is configured. The project uses minimal tooling wit
 
 ## 📄 License
 
-This project is open source and available under the MIT License.
+This project is open source and available under the ISC License.
 
 ## 🎯 Future Roadmap
 
@@ -175,4 +179,4 @@ This project is open source and available under the MIT License.
 
 ---
 
-**Built with React 19, TypeScript, Framer Motion, and Tailwind CSS**
+**Built with React 19, TypeScript, Framer Motion; legacy Tailwind styling still requires restoration before mobile release.**

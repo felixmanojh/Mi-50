@@ -1,0 +1,25 @@
+name: M0 original-rules gate
+
+on:
+  push:
+    branches: [feat/m0-original-rules-restoration]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  rules-and-web-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Original rules replay tests
+        run: npm test
+      - name: Build existing React prototype
+        run: npm run build

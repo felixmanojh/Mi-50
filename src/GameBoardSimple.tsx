@@ -2,37 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { monsterSpriteUrls } from './constants';
 
-// Create snake pattern array: [1-10], [20-11], [21-30], [40-31], [41-50]
-const createSnakePattern = () => {
-  const pattern = [];
-  
-  // Row 1: 1-10 (left to right)
-  for (let i = 1; i <= 10; i++) {
-    pattern.push(i);
-  }
-  
-  // Row 2: 11-20 (right to left, reversed)
-  for (let i = 20; i >= 11; i--) {
-    pattern.push(i);
-  }
-  
-  // Row 3: 21-30 (left to right)
-  for (let i = 21; i <= 30; i++) {
-    pattern.push(i);
-  }
-  
-  // Row 4: 31-40 (right to left, reversed)
-  for (let i = 40; i >= 31; i--) {
-    pattern.push(i);
-  }
-  
-  // Row 5: 41-50 (left to right)
-  for (let i = 41; i <= 50; i++) {
-    pattern.push(i);
-  }
-  
-  return pattern;
-};
+// Paper board orientation: START at bottom-left, FINISH at top-right.
+// The DOM grid is drawn top-to-bottom, so the numbered rows must be reversed.
+const createSnakePattern = () => [
+  ...Array.from({ length: 10 }, (_, i) => 41 + i),
+  ...Array.from({ length: 10 }, (_, i) => 40 - i),
+  ...Array.from({ length: 10 }, (_, i) => 21 + i),
+  ...Array.from({ length: 10 }, (_, i) => 20 - i),
+  ...Array.from({ length: 10 }, (_, i) => 1 + i),
+];
 
 const snakePattern = createSnakePattern();
 
